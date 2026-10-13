@@ -1,0 +1,577 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Penilaian Helper LNV</title>
+<meta name="theme-color" content="#0F766E">
+<meta name="description" content="Penilaian harian helper oleh kepala cabang Leo N Vets Group">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="icon" href="icon-192.png">
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="apple-mobile-web-app-title" content="Helper LNV">
+<style>
+:root{--bg:#F3F5F4;--panel:#fff;--ink:#16211F;--muted:#5C6B68;--line:#DCE3E1;--accent:#0F766E;--accent-ink:#fff;--accent-soft:#DDF1EE;
+  --ok:#D8F0DD;--ok-ink:#1C5B2B;--warn:#FFF1B8;--warn-ink:#6B4F00;--bad:#FBD5D2;--bad-ink:#9B1C12;--pend:#E6E9FF;--pend-ink:#2F3A9E;
+  --a:#D8F0DD;--b:#FFF1B8;--c:#FBD5D2;--na:#E9ECEB;color-scheme:light}
+@media (prefers-color-scheme:dark){:root{--bg:#0F1514;--panel:#18211F;--ink:#E6EEEC;--muted:#9AABA7;--line:#2B3835;--accent:#4FC2B5;--accent-ink:#0B1F1C;--accent-soft:#173A36;
+  --ok:#1B3B25;--ok-ink:#A8E6B6;--warn:#4A3C0E;--warn-ink:#FFE08A;--bad:#4D1F1B;--bad-ink:#FFB4AB;--pend:#252B5C;--pend-ink:#C9CEFF;--a:#1B3B25;--b:#4A3C0E;--c:#4D1F1B;--na:#26302E;color-scheme:dark}}
+*{box-sizing:border-box}
+html,body{margin:0;background:var(--bg);color:var(--ink);font:15px/1.45 system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;-webkit-text-size-adjust:100%}
+body{padding-bottom:calc(64px + env(safe-area-inset-bottom))}
+[hidden]{display:none!important}
+button,input,select,textarea{font:inherit;color:inherit}
+.wrap{max-width:640px;margin:0 auto;padding:12px 16px}
+h1{font-size:20px;margin:0}
+h2{font-size:17px;margin:0 0 8px}
+.muted{color:var(--muted)} .small{font-size:13px}
+.top{position:sticky;top:0;z-index:5;background:var(--accent);color:var(--accent-ink);padding:calc(10px + env(safe-area-inset-top)) 16px 10px}
+.top .row{max-width:640px;margin:0 auto;display:flex;align-items:center;gap:10px;justify-content:space-between}
+.top b{font-size:16px} .top small{display:block;opacity:.85;font-size:12px}
+.pill{display:inline-flex;align-items:center;gap:4px;padding:3px 10px;border-radius:999px;font-size:12px;font-weight:600;white-space:nowrap}
+.pill.on{background:rgba(255,255,255,.2)} .pill.off{background:var(--warn);color:var(--warn-ink)} .pill.wait{background:var(--pend);color:var(--pend-ink)}
+.card{background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:14px}
+.field{display:grid;gap:4px;font-size:13px;color:var(--muted)}
+.field input,.field select,.field textarea{font-size:16px;color:var(--ink);background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:10px 12px;width:100%}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.btn{appearance:none;border:0;border-radius:10px;background:var(--accent);color:var(--accent-ink);font-weight:700;padding:12px 16px;cursor:pointer;min-height:44px}
+.btn.ghost{background:transparent;color:var(--accent);border:1px solid var(--line)}
+.btn.danger{background:transparent;color:var(--bad-ink);border:1px solid var(--bad)}
+.btn.block{width:100%}
+.btn:disabled{opacity:.55}
+.list{display:grid;gap:8px;margin-top:10px}
+.hcard{display:flex;align-items:center;gap:12px;width:100%;text-align:left;background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:12px 14px;cursor:pointer;min-height:64px}
+.hcard .nm{font-weight:700;font-size:16px}
+.hcard .info{flex:1;min-width:0}
+.hcard .sub{font-size:12px;color:var(--muted)}
+.hcard .sk{font-weight:800;font-size:18px;min-width:52px;text-align:right}
+.hcard.done{border-color:var(--ok-ink);background:linear-gradient(90deg,var(--ok) 0 6px,var(--panel) 6px)}
+.hcard.pend{background:linear-gradient(90deg,var(--pend) 0 6px,var(--panel) 6px)}
+.tag{display:inline-block;font-size:11px;font-weight:700;padding:1px 7px;border-radius:999px;margin-left:6px;vertical-align:2px}
+.tag.rot{background:var(--accent-soft);color:var(--accent)} .tag.tr{background:var(--warn);color:var(--warn-ink)}
+.tag.pend{background:var(--pend);color:var(--pend-ink)} .tag.done{background:var(--ok);color:var(--ok-ink)}
+.prog{height:8px;border-radius:99px;background:var(--line);overflow:hidden;margin-top:8px}.prog i{display:block;height:100%;background:var(--accent);width:0}
+.absen{display:flex;flex-wrap:wrap;gap:6px;margin-top:6px}.absen span{font-size:12px;background:var(--na);padding:3px 9px;border-radius:999px}
+nav.tabs{position:fixed;left:0;right:0;bottom:0;z-index:6;display:flex;background:var(--panel);border-top:1px solid var(--line);padding-bottom:env(safe-area-inset-bottom)}
+nav.tabs button{flex:1;background:none;border:0;padding:8px 4px 10px;font-size:12px;color:var(--muted);display:grid;justify-items:center;gap:2px;cursor:pointer;min-height:56px}
+nav.tabs button svg{width:22px;height:22px}
+nav.tabs button[aria-selected="true"]{color:var(--accent);font-weight:700}
+/* form penilaian */
+.sheet{position:fixed;inset:0;z-index:10;background:var(--bg);overflow:auto;-webkit-overflow-scrolling:touch;padding-bottom:calc(90px + env(safe-area-inset-bottom))}
+.sheet .top{position:sticky}
+.skor{font-size:22px;font-weight:800}
+.alert{position:sticky;top:calc(58px + env(safe-area-inset-top));z-index:4;margin:8px 0;background:var(--bad);color:var(--bad-ink);border-radius:10px;padding:10px 12px;font-size:14px}
+.alert button{background:none;border:0;color:inherit;text-decoration:underline;padding:2px 4px;font:inherit;cursor:pointer}
+.sec{margin-top:14px}
+.sec h3{font-size:15px;margin:0 0 6px;color:var(--accent)}
+.item{background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:12px;margin-bottom:8px;scroll-margin-top:120px}
+.item.miss{border-color:var(--bad-ink);box-shadow:0 0 0 2px var(--bad)}
+.item .q{font-weight:700;margin-bottom:6px}
+.item .q small{display:block;font-weight:400;color:var(--muted);font-size:12px}
+.opt{display:flex;gap:10px;align-items:flex-start;width:100%;text-align:left;background:transparent;border:1px solid var(--line);border-radius:10px;padding:8px 10px;margin-top:6px;cursor:pointer;font-size:14px}
+.opt b{flex:0 0 26px;height:26px;border-radius:50%;display:grid;place-items:center;background:var(--na);font-size:13px}
+.opt[aria-pressed="true"].A{background:var(--a);border-color:var(--ok-ink)} .opt[aria-pressed="true"].B{background:var(--b);border-color:var(--warn-ink)}
+.opt[aria-pressed="true"].C{background:var(--c);border-color:var(--bad-ink)} .opt[aria-pressed="true"].N{background:var(--na);border-color:var(--muted)}
+.opt[aria-pressed="true"] b{background:var(--panel)}
+.catbtn{background:none;border:0;color:var(--accent);padding:6px 0;font-size:14px;cursor:pointer}
+.foot{position:fixed;left:0;right:0;bottom:0;z-index:11;background:var(--panel);border-top:1px solid var(--line);padding:10px 16px calc(10px + env(safe-area-inset-bottom))}
+.foot .row{max-width:640px;margin:0 auto;display:flex;gap:10px;align-items:center}
+.toast{position:fixed;left:50%;transform:translateX(-50%);bottom:calc(76px + env(safe-area-inset-bottom));z-index:20;background:var(--ink);color:var(--bg);padding:10px 16px;border-radius:10px;font-size:14px;max-width:92vw;box-shadow:0 4px 16px rgba(0,0,0,.25)}
+.banner{background:var(--accent-soft);border-radius:12px;padding:12px 14px;margin-top:10px;font-size:14px}
+.rw{display:flex;justify-content:space-between;gap:10px;align-items:center}
+.day{margin-top:14px;font-size:13px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.04em}
+.pin-in{font-size:24px!important;letter-spacing:.4em;text-align:center}
+.center{text-align:center}
+.logo{width:72px;height:72px;border-radius:18px;display:block;margin:24px auto 8px}
+.err{color:var(--bad-ink);font-size:14px;min-height:1.2em}
+</style>
+</head>
+<body>
+<!-- ============ LOGIN ============ -->
+<section id="vLogin" hidden>
+  <div class="wrap">
+    <img class="logo" src="icon-192.png" alt="">
+    <h1 class="center">Penilaian Helper</h1>
+    <p class="center muted small" style="margin:4px 0 18px">Leo N Vets Group · khusus kepala cabang</p>
+    <div class="card" style="display:grid;gap:12px">
+      <label class="field">Nama Anda<select id="lAkun"><option value="">Memuat daftar…</option></select></label>
+      <label class="field">PIN<input id="lPin" class="pin-in" type="password" inputmode="numeric" autocomplete="current-password" maxlength="8" placeholder="••••••"></label>
+      <p class="err" id="lErr"></p>
+      <button class="btn block" id="lMasuk">Masuk</button>
+      <p class="muted small center" style="margin:0">Belum punya PIN atau lupa? Minta ke admin.</p>
+    </div>
+    <div id="installHint1"></div>
+  </div>
+</section>
+
+<!-- ============ APLIKASI ============ -->
+<section id="vApp" hidden>
+  <header class="top"><div class="row">
+    <div><b id="hNama"></b><small id="hJabatan"></small></div>
+    <span class="pill on" id="syncPill">Online</span>
+  </div></header>
+
+  <!-- tab nilai -->
+  <main id="tNilai" class="wrap">
+    <div class="card">
+      <div class="grid2">
+        <label class="field">Tanggal<input type="date" id="fTgl"></label>
+        <label class="field">Cabang tempat Anda bertugas<select id="fCab"></select></label>
+      </div>
+      <p class="small" id="progTxt" style="margin:10px 0 0"></p>
+      <div class="prog"><i id="progBar"></i></div>
+    </div>
+    <div id="installHint2"></div>
+    <div class="list" id="hList"></div>
+    <div id="absenBox" class="card" style="margin-top:10px" hidden><b class="small">Tidak masuk menurut jadwal</b><div class="absen" id="absenList"></div></div>
+    <div class="card" style="margin-top:10px">
+      <label class="field">Ada helper lain yang bertugas di sini tapi belum muncul?<select id="fLain"><option value="">＋ Pilih helper…</option></select></label>
+      <p class="muted small" style="margin:6px 0 0">Daftar di atas otomatis mengikuti jadwal penempatan dari admin. Pakai pilihan ini hanya kalau jadwalnya belum diperbarui.</p>
+    </div>
+    <p class="muted small center" id="dataInfo" style="margin-top:12px"></p>
+  </main>
+
+  <!-- tab riwayat -->
+  <main id="tRiwayat" class="wrap" hidden>
+    <div class="rw"><button class="btn ghost" id="rPrev" aria-label="Bulan sebelumnya">‹</button><h2 id="rJudul" style="margin:0"></h2><button class="btn ghost" id="rNext" aria-label="Bulan berikutnya">›</button></div>
+    <div id="gagalBox"></div>
+    <div id="rList"></div>
+  </main>
+
+  <!-- tab akun -->
+  <main id="tAkun" class="wrap" hidden>
+    <div class="card"><b id="aNama"></b><div class="muted small" id="aInfo"></div></div>
+    <div id="installHint3"></div>
+    <div class="card" style="margin-top:10px;display:grid;gap:10px">
+      <b>Ganti PIN</b>
+      <div class="grid2"><label class="field">PIN lama<input id="pLama" type="password" inputmode="numeric" maxlength="8"></label><label class="field">PIN baru (4–8 angka)<input id="pBaru" type="password" inputmode="numeric" maxlength="8"></label></div>
+      <p class="err" id="pErr"></p>
+      <button class="btn ghost" id="pSimpan">Simpan PIN baru</button>
+    </div>
+    <div class="card" style="margin-top:10px">
+      <b>Mode offline</b>
+      <p class="small muted" style="margin:4px 0 0">Kalau sinyal hilang, penilaian tetap bisa diisi dan disimpan di HP. Begitu ada internet, penilaian terkirim otomatis. Jangan logout atau hapus data browser selama masih ada penilaian yang menunggu dikirim.</p>
+      <p class="small" id="aAntrean" style="margin:8px 0 0"></p>
+    </div>
+    <button class="btn danger block" id="aKeluar" style="margin-top:14px">Keluar</button>
+    <p class="muted small center" style="margin-top:14px">Versi aplikasi <span id="aVersi"></span></p>
+  </main>
+
+  <nav class="tabs" role="tablist">
+    <button role="tab" data-tab="tNilai" aria-selected="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg>Nilai hari ini</button>
+    <button role="tab" data-tab="tRiwayat" aria-selected="false"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 3"/></svg>Riwayat</button>
+    <button role="tab" data-tab="tAkun" aria-selected="false"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="4"/><path d="M4 21a8 8 0 0 1 16 0"/></svg>Akun</button>
+  </nav>
+</section>
+
+<!-- ============ FORM PENILAIAN ============ -->
+<section id="vForm" class="sheet" hidden>
+  <header class="top"><div class="row">
+    <div style="min-width:0"><b id="fNama"></b><small id="fSub"></small></div>
+    <div class="skor" id="fSkor">–</div>
+  </div></header>
+  <div class="wrap">
+    <div class="alert" id="fAlert" role="alert" hidden></div>
+    <p class="small muted" id="fInfo" style="margin:4px 0 0"></p>
+    <div id="fItems"></div>
+    <div class="sec"><h3>Catatan umum hari ini</h3><textarea id="fCatUmum" rows="3" class="field" style="width:100%;font-size:16px;border:1px solid var(--line);border-radius:10px;padding:10px;background:var(--panel)"></textarea></div>
+    <div class="card" id="fHapusBox" style="margin-top:16px;display:grid;gap:8px" hidden>
+      <b>Hapus penilaian ini?</b>
+      <select id="fHapusSt" class="field" style="font-size:16px;padding:10px;border:1px solid var(--line);border-radius:10px;background:var(--panel)">
+        <option value="">Hapus saja (nanti dinilai ulang)</option><option value="Libur">Hapus &amp; tandai Libur</option><option value="Sakit">Hapus &amp; tandai Sakit</option>
+        <option value="Izin">Hapus &amp; tandai Izin</option><option value="Cuti">Hapus &amp; tandai Cuti</option><option value="Alpa">Hapus &amp; tandai Alpa</option></select>
+      <button class="btn danger" id="fHapus">Hapus penilaian</button>
+    </div>
+  </div>
+  <div class="foot"><div class="row">
+    <button class="btn ghost" id="fBatal">Batal</button>
+    <button class="btn" id="fSimpan" style="flex:1">Simpan penilaian</button>
+  </div></div>
+</section>
+
+<div class="toast" id="toast" hidden></div>
+<script>
+// ===================== PENGATURAN =====================
+// Alamat Apps Script (URL /exec dari Deploy > Manage deployments). Sama dengan link web admin.
+const API = "https://script.google.com/macros/s/AKfycbx0VfKovPWgOiXGgeHxzJ5J24QJ91EWrqptM0XhdR5Dy9ypvFawUxnOGOvqx15D7FTMLA/exec";
+const VERSI = "1.0 (13 Okt 2026)";
+// ======================================================
+const NILAI_DEF=[
+ {k:"a",t:"A. Penampilan & kesiapan diri",items:[
+  ["a1","Pakaian dan kerapihan",["Bersih, wangi, rapi, dan sesuai standar tempat kerja","Bersih tetapi kurang wangi/kurang rapi","Tidak bersih, tidak wangi, dan tidak rapi"]],
+  ["a2","Rambut dan grooming",["Rapi, bersih, dan sesuai standar pekerjaan","Cukup rapi tetapi sesekali perlu diingatkan","Tidak rapi/tidak sesuai standar dan berulang kali perlu diingatkan"]],
+  ["a3","Kebersihan diri dan bau badan",["Bersih, segar, dan tidak mengganggu kenyamanan lingkungan kerja","Sesekali kurang terjaga","Kebersihan diri/bau badan mengganggu lingkungan kerja"]],
+  ["a4","Kondisi kesadaran saat bekerja",["Sadar, fokus, dan berperilaku normal","Ada perilaku/kondisi yang menimbulkan kecurigaan dan perlu diperhatikan","Terlihat berada dalam kondisi yang tidak layak untuk bekerja"],"Penilaian berdasarkan tanda/perilaku yang teramati, bukan diagnosis atau tuduhan."]]},
+ {k:"b",t:"B. Komunikasi & sikap terhadap orang lain",items:[
+  ["b1","Terhadap supervisor/SPV",["Sopan, menghargai arahan, responsif, dan menjalankan instruksi dengan baik","Menerima arahan tetapi terkadang perlu diingatkan","Sering membantah, mengabaikan arahan, atau tidak kooperatif"]],
+  ["b2","Terhadap dokter",["Sopan, komunikatif, menghargai instruksi dan batas kewenangan","Cukup baik tetapi masih perlu diarahkan","Tidak menghargai arahan/batas kewenangan atau tidak kooperatif"]],
+  ["b3","Terhadap rekan kerja",["Sopan, kooperatif, mudah bekerja sama, dan menghargai rekan kerja","Cukup kooperatif tetapi masih perlu beradaptasi","Sulit bekerja sama, mudah konflik, atau tidak menghargai rekan kerja"]],
+  ["b4","Cara menerima kritik dan koreksi",["Menerima koreksi dengan baik dan melakukan perbaikan","Menerima koreksi tetapi perlu diingatkan kembali","Defensif, sulit menerima koreksi, atau mengulangi kesalahan yang sama"]]]},
+ {k:"c",t:"C. Etos kerja",items:[
+  ["c1","Saat bersih-bersih/persiapan pagi",["Aktif, sigap, dan menyelesaikan tugas tanpa harus selalu diperintah","Bekerja setelah diberikan arahan","Pasif, menghindari pekerjaan, atau harus terus-menerus diperintah"]],
+  ["c2","Saat pelayanan rawat jalan",["Sigap, aktif, memahami prioritas, dan membantu kelancaran pelayanan","Menjalankan tugas tetapi masih perlu diarahkan","Lambat/pasif, kurang peduli alur pelayanan, atau sering meninggalkan tanggung jawab"]],
+  ["c3","Saat pelayanan rawat inap",["Bertanggung jawab, memperhatikan kebutuhan pasien, dan menjalankan tugas dengan baik","Menjalankan tugas sesuai instruksi tetapi belum menunjukkan inisiatif","Lalai, kurang peduli, atau sering harus diingatkan mengenai tugas"]],
+  ["c4","Saat sedang tidak ada pasien",["Mencari pekerjaan, membantu rekan, atau mempersiapkan kebutuhan pelayanan","Menunggu instruksi untuk melakukan pekerjaan","Banyak mengobrol/bermain HP/bermalas-malasan dan tidak berinisiatif"]]]},
+ {k:"d",t:"D. Kepatuhan & tanggung jawab",items:[
+  ["d1","Kepatuhan terhadap SOP dan aturan kerja",["Mematuhi SOP dan aturan dengan baik","Sesekali perlu diingatkan","Sering mengabaikan aturan/SOP"]],
+  ["d2","Ketepatan waktu",["Datang tepat waktu dan siap bekerja","Sesekali terlambat tetapi masih dapat ditoleransi","Sering terlambat/tidak siap saat jam kerja dimulai"]],
+  ["d3","Tanggung jawab terhadap tugas",["Menyelesaikan tugas sampai tuntas dan dapat dipercaya","Menyelesaikan tugas tetapi terkadang perlu diingatkan","Sering meninggalkan tugas/tidak menyelesaikan tugas"]],
+  ["d4","Penggunaan HP saat jam kerja",["Hanya untuk kepentingan pekerjaan/pribadi yang mendesak","Sesekali menggunakan HP untuk kepentingan pribadi","Sering menggunakan HP untuk kepentingan pribadi sehingga mengganggu pekerjaan"]]]},
+ {k:"e",t:"E. Inisiatif & motivasi kerja",items:[
+  ["e1","Inisiatif",["Aktif mencari tahu dan membantu tanpa harus selalu diperintah","Bekerja dengan baik setelah diberikan arahan","Cenderung pasif dan menunggu perintah"]],
+  ["e2","Kemauan belajar",["Aktif bertanya, cepat belajar, dan berusaha memperbaiki kesalahan","Mau belajar tetapi membutuhkan arahan cukup sering","Tidak menunjukkan kemauan belajar atau memperbaiki kesalahan"]],
+  ["e3","Motivasi bekerja",["Menunjukkan motivasi yang jelas dan positif terhadap pekerjaan","Motivasi bekerja masih perlu digali/dikembangkan","Tidak menunjukkan ketertarikan atau motivasi yang cukup"]]]}
+];
+const KEYS = NILAI_DEF.flatMap(s => s.items.map(i => i[0]));
+const CAT_KEYS = ["catatan_a","catatan_b","catatan_c","catatan_d","catatan_e","catatan_umum"];
+const BULAN = ["Januari","Februari","Maret","April","Mei","Juni","Juli","Agustus","September","Oktober","November","Desember"];
+const HARI = ["Minggu","Senin","Selasa","Rabu","Kamis","Jumat","Sabtu"];
+const $ = id => document.getElementById(id);
+const esc = s => String(s == null ? "" : s).replace(/[&<>"']/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+const pad = n => String(n).padStart(2, "0");
+const isoLokal = d => `${d.getFullYear()}-${pad(d.getMonth()+1)}-${pad(d.getDate())}`;
+const hariIni = () => isoLokal(new Date());
+const tglPanjang = iso => { const d = new Date(iso + "T00:00:00"); return `${HARI[d.getDay()]}, ${d.getDate()} ${BULAN[d.getMonth()]} ${d.getFullYear()}`; };
+const tglPendek = iso => { const d = new Date(iso + "T00:00:00"); return `${d.getDate()} ${BULAN[d.getMonth()].slice(0,3)}`; };
+const slug = n => String(n || "").trim().toLowerCase().replace(/\s+/g, "-");
+const skorDari = o => { let t = 0, n = 0; KEYS.forEach(k => { const v = {A:3,B:2,C:1}[o[k]]; if (v) { t += v; n++; } }); return n ? Math.round(t / (n * 3) * 100) : ""; };
+
+// ---------- penyimpanan di HP ----------
+const LS = {
+  get(k, d) { try { const v = localStorage.getItem("kc_" + k); return v == null ? d : JSON.parse(v); } catch (_) { return d; } },
+  set(k, v) { try { localStorage.setItem("kc_" + k, JSON.stringify(v)); } catch (_) {} },
+  del(k) { try { localStorage.removeItem("kc_" + k); } catch (_) {} }
+};
+let sesi = LS.get("sesi", null);          // {token, akun, cabang[]}
+let antrean = LS.get("antrean", []);      // penilaian yang belum terkirim
+let gagal = LS.get("gagal", []);          // ditolak server, perlu dicek
+const st = { tanggal: hariIni(), cabang: "", data: null, bulan: null, riwayat: [] };
+
+// ---------- komunikasi ke server ----------
+async function api(fn, args, timeout) {
+  const ctl = new AbortController(), t = setTimeout(() => ctl.abort(), timeout || 30000);
+  let res;
+  try {
+    res = await fetch(API, { method: "POST", headers: { "Content-Type": "text/plain;charset=utf-8" },
+      body: JSON.stringify({ fn, token: sesi && sesi.token, args: args || {} }), signal: ctl.signal });
+  } catch (e) { const x = new Error("Tidak ada koneksi internet."); x.offline = true; throw x; }
+  finally { clearTimeout(t); }
+  let j; try { j = await res.json(); } catch (e) { const x = new Error("Server tidak merespons dengan benar."); x.offline = true; throw x; }
+  if (!j.ok) { const x = new Error(String(j.error || "Gagal").replace(/^SESI:\s*/, "")); x.server = true; x.sesi = /^SESI:/.test(j.error || ""); throw x; }
+  return j.data;
+}
+
+// ---------- tampilan umum ----------
+let toastT;
+function toast(msg, ms) { const t = $("toast"); t.textContent = msg; t.hidden = false; clearTimeout(toastT); toastT = setTimeout(() => t.hidden = true, ms || 3200); }
+function tampil(v) { ["vLogin", "vApp"].forEach(id => $(id).hidden = id !== v); }
+function bukaTab(id) {
+  document.querySelectorAll("nav.tabs button").forEach(b => b.setAttribute("aria-selected", b.dataset.tab === id));
+  ["tNilai", "tRiwayat", "tAkun"].forEach(x => $(x).hidden = x !== id);
+  if (id === "tRiwayat") muatRiwayat();
+  if (id === "tAkun") renderAkun();
+  window.scrollTo(0, 0);
+}
+document.querySelectorAll("nav.tabs button").forEach(b => b.onclick = () => bukaTab(b.dataset.tab));
+function renderSync() {
+  const p = $("syncPill"), n = antrean.length;
+  if (!navigator.onLine) { p.className = "pill off"; p.textContent = n ? `Offline · ${n} menunggu` : "Offline"; }
+  else if (n) { p.className = "pill wait"; p.textContent = sinkronJalan ? `Mengirim ${n}…` : `${n} menunggu dikirim`; }
+  else { p.className = "pill on"; p.textContent = "Online"; }
+  const a = $("aAntrean"); if (a) a.textContent = n ? `${n} penilaian tersimpan di HP dan menunggu dikirim.` : "Semua penilaian sudah terkirim ke server.";
+}
+
+// ---------- login ----------
+async function muatAkunLogin() {
+  const sel = $("lAkun"), isi = list => {
+    const cur = sel.value || LS.get("akunTerakhir", "");
+    sel.innerHTML = '<option value="">Pilih nama Anda…</option>' + list.map(a => `<option value="${esc(a.id)}">${esc(a.nama)}${a.cabang ? " — " + esc(a.cabang) : ""}</option>`).join("");
+    if (cur) sel.value = cur;
+  };
+  const cache = LS.get("akunLogin", null); if (cache) isi(cache);
+  try { const list = await api("akunLogin"); LS.set("akunLogin", list); isi(list); if (!list.length) $("lErr").textContent = "Belum ada akun kacab. Minta admin membuatkan akun dulu."; }
+  catch (e) { if (!cache) $("lErr").textContent = e.offline ? "Butuh internet untuk login pertama kali." : e.message; }
+}
+$("lMasuk").onclick = async () => {
+  const id = $("lAkun").value, pin = $("lPin").value.trim(), b = $("lMasuk");
+  if (!id) { $("lErr").textContent = "Pilih nama Anda."; return; }
+  if (!/^\d{4,8}$/.test(pin)) { $("lErr").textContent = "PIN berupa 4–8 angka."; $("lPin").focus(); return; }
+  b.disabled = true; b.textContent = "Memeriksa…"; $("lErr").textContent = "";
+  try {
+    const r = await api("login", { akun_id: id, pin });
+    sesi = { token: r.token, akun: r.akun, cabang: r.cabang, tanpa: r.tanpaPenilaian };
+    LS.set("sesi", sesi); LS.set("akunTerakhir", id); $("lPin").value = "";
+    mulaiApp();
+  } catch (e) { $("lErr").textContent = e.message; }
+  finally { b.disabled = false; b.textContent = "Masuk"; }
+};
+$("lPin").addEventListener("keydown", e => { if (e.key === "Enter") $("lMasuk").click(); });
+function keluar(pesan) {
+  if (antrean.length && !confirm(`Masih ada ${antrean.length} penilaian yang belum terkirim dan akan hilang kalau keluar sekarang. Tetap keluar?`)) return;
+  if (sesi && navigator.onLine) api("logout").catch(() => {});
+  sesi = null; LS.del("sesi"); antrean = []; LS.set("antrean", antrean);
+  Object.keys(localStorage).filter(k => k.indexOf("kc_hari_") === 0 || k.indexOf("kc_riw_") === 0).forEach(k => localStorage.removeItem(k));
+  tampil("vLogin"); muatAkunLogin(); if (pesan) $("lErr").textContent = pesan;
+}
+function sesiHabis(msg) {
+  // jangan buang antrean: setelah login ulang, antrean dikirim
+  sesi = null; LS.del("sesi"); tampil("vLogin"); muatAkunLogin();
+  $("lErr").textContent = msg + (antrean.length ? ` (${antrean.length} penilaian di HP tetap aman dan dikirim setelah login.)` : "");
+}
+
+// ---------- mulai ----------
+function mulaiApp() {
+  tampil("vApp");
+  $("hNama").textContent = sesi.akun.nama;
+  $("hJabatan").textContent = `${sesi.akun.jabatan || "Kepala cabang"}${sesi.akun.cabang ? " · " + sesi.akun.cabang : ""}`;
+  st.cabang = LS.get("cabang", "") || sesi.akun.cabang || "";
+  const cabs = [...new Set((sesi.cabang || []).concat(sesi.akun.cabang ? [sesi.akun.cabang] : []))].sort();
+  $("fCab").innerHTML = '<option value="">Pilih cabang…</option>' + cabs.map(c => `<option ${c === st.cabang ? "selected" : ""}>${esc(c)}</option>`).join("");
+  $("fTgl").value = st.tanggal; $("fTgl").max = hariIni();
+  bukaTab("tNilai"); renderSync(); muatHari(); sinkron(); tampilInstall();
+  api("saya").then(r => { sesi.akun = r.akun; sesi.cabang = r.cabang; LS.set("sesi", sesi); }).catch(e => { if (e.sesi) sesiHabis(e.message); });
+}
+$("fTgl").onchange = () => { const v = $("fTgl").value; if (!v) return; if (v > hariIni()) { $("fTgl").value = hariIni(); toast("Tidak bisa menilai hari yang belum terjadi."); } st.tanggal = $("fTgl").value; muatHari(); };
+$("fCab").onchange = () => { st.cabang = $("fCab").value; LS.set("cabang", st.cabang); muatHari(); };
+
+// ---------- daftar helper hari ini ----------
+const kunciHari = () => `hari_${st.tanggal}_${st.cabang}`;
+async function muatHari() {
+  if (!st.cabang) { st.data = null; renderHari(); return; }
+  const k = kunciHari(), c = LS.get(k, null);
+  st.data = c; renderHari(c ? "" : "Memuat…");
+  try {
+    const d = await api("hari", { tanggal: st.tanggal, cabang: st.cabang });
+    d._waktu = Date.now(); LS.set(k, d);
+    if (k === kunciHari()) { st.data = d; renderHari(); }
+  } catch (e) {
+    if (e.sesi) return sesiHabis(e.message);
+    if (k === kunciHari()) renderHari(c ? "" : (e.offline ? "Belum ada data tersimpan untuk tanggal & cabang ini. Butuh internet sekali untuk memuatnya." : e.message));
+  }
+}
+function milikSaya(r) { return r.penilai === sesi.akun.nama; }
+function antreanUntuk(hid, tgl) { return antrean.find(x => x.op === "simpan" && x.p.helper_id === hid && x.p.tanggal === tgl); }
+function hapusAntre(hid, tgl) { return antrean.find(x => x.op === "hapus" && x.helper_id === hid && x.tanggal === tgl); }
+function renderHari(pesan) {
+  const d = st.data, list = $("hList");
+  if (!st.cabang) { $("progTxt").textContent = "Pilih dulu cabang tempat Anda bertugas."; $("progBar").style.width = "0"; list.innerHTML = ""; $("absenBox").hidden = true; return; }
+  if (!d) { $("progTxt").textContent = pesan || ""; list.innerHTML = ""; $("absenBox").hidden = true; $("dataInfo").textContent = ""; return; }
+  // gabungkan helper dari server + yang ada di antrean (dinilai offline di cabang ini)
+  const hs = d.helper.slice();
+  antrean.filter(x => x.op === "simpan" && x.p.tanggal === st.tanggal && x.p.cabang === st.cabang && !hs.some(h => h.id === x.p.helper_id))
+    .forEach(x => { const h = (d.semua || []).find(s => s.id === x.p.helper_id); if (h) hs.push(Object.assign({}, h, { rotasi: h.penempatan !== st.cabang })); });
+  let selesai = 0;
+  list.innerHTML = hs.map(h => {
+    const semua = d.nilai.filter(r => r.helper_id === h.id), saya = semua.find(milikSaya), lain = semua.filter(r => !milikSaya(r));
+    const q = antreanUntuk(h.id, st.tanggal), qh = hapusAntre(h.id, st.tanggal);
+    let cls = "", sk = "", stat = "Belum dinilai";
+    if (q) { cls = "pend"; sk = skorDari(q.p) + "%"; stat = '<span class="tag pend">menunggu dikirim</span>'; selesai++; }
+    else if (saya && !qh) { cls = "done"; sk = saya.skor + "%"; stat = '<span class="tag done">sudah Anda nilai</span>'; selesai++; }
+    else if (qh) stat = '<span class="tag pend">akan dihapus</span>';
+    if (lain.length) stat += ` · juga dinilai ${esc(lain.map(r => r.penilai).join(", "))}`;
+    const tr = h.tgl_masuk && (new Date(st.tanggal) - new Date(h.tgl_masuk)) / 864e5 <= 183;
+    return `<button class="hcard ${cls}" data-h="${esc(h.id)}"><div class="info"><div class="nm">${esc(h.nama)}${h.rotasi ? `<span class="tag rot">↻ dari ${esc(h.penempatan || "–")}</span>` : ""}${tr ? '<span class="tag tr">Training</span>' : ""}</div><div class="sub">${stat}</div></div><div class="sk">${esc(sk) || "›"}</div></button>`;
+  }).join("") || `<div class="card muted">Tidak ada helper yang dijadwalkan di ${esc(st.cabang)} pada ${esc(tglPendek(st.tanggal))}.</div>`;
+  $("progTxt").innerHTML = pesan ? esc(pesan) : `<b>${tglPanjang(st.tanggal)}</b> · ${hs.length ? `${selesai} dari ${hs.length} helper sudah Anda nilai` : "tidak ada jadwal"}`;
+  $("progBar").style.width = hs.length ? Math.round(selesai / hs.length * 100) + "%" : "0";
+  $("absenBox").hidden = !d.tidakMasuk.length;
+  $("absenList").innerHTML = d.tidakMasuk.map(x => `<span>${esc(x.nama)} · ${esc(x.status)}</span>`).join("");
+  const ada = new Set(hs.map(h => h.id));
+  $("fLain").innerHTML = '<option value="">＋ Pilih helper…</option>' + (d.semua || []).filter(h => !ada.has(h.id)).map(h => `<option value="${esc(h.id)}">${esc(h.nama)} (${esc(h.penempatan || "–")})</option>`).join("");
+  $("dataInfo").textContent = d._waktu ? `Data diperbarui ${new Date(d._waktu).toLocaleString("id-ID", { day: "numeric", month: "short", hour: "2-digit", minute: "2-digit" })}${navigator.onLine ? "" : " · sedang offline"}` : "";
+}
+$("hList").addEventListener("click", e => { const b = e.target.closest("[data-h]"); if (!b) return; const d = st.data;
+  const h = d.helper.find(x => x.id === b.dataset.h) || (d.semua || []).find(x => x.id === b.dataset.h); if (h) bukaForm(h, st.tanggal, st.cabang); });
+$("fLain").onchange = () => { const id = $("fLain").value; $("fLain").value = ""; const h = (st.data.semua || []).find(x => x.id === id); if (h) bukaForm(Object.assign({}, h, { rotasi: h.penempatan !== st.cabang }), st.tanggal, st.cabang); };
+
+// ---------- form penilaian ----------
+let fCur = null;
+function bukaForm(h, tanggal, cabang, rekamLama) {
+  const d = st.data && st.data.tanggal === tanggal && st.data.cabang === cabang ? st.data : null;
+  const q = antreanUntuk(h.id, tanggal);
+  const saya = rekamLama || (d && d.nilai.find(r => r.helper_id === h.id && milikSaya(r)));
+  const awal = q ? q.p : (saya || {});
+  fCur = { h, tanggal, cabang, nilai: {}, cat: {}, saya: saya || null, antre: !!q };
+  KEYS.forEach(k => { if (awal[k]) fCur.nilai[k] = awal[k]; });
+  CAT_KEYS.forEach(k => { if (awal[k]) fCur.cat[k] = awal[k]; });
+  $("fNama").textContent = h.nama_lengkap || h.nama;
+  $("fSub").textContent = `${tglPanjang(tanggal)} · ${cabang}${(h.penempatan && h.penempatan !== cabang) ? " · rotasi dari " + h.penempatan : ""}`;
+  const lain = d ? d.nilai.filter(r => r.helper_id === h.id && !milikSaya(r)) : [];
+  $("fInfo").textContent = (saya || q ? "Anda sedang mengubah penilaian yang sudah diisi. " : "") + (lain.length ? `Helper ini juga dinilai ${lain.map(r => r.penilai).join(", ")} hari ini.` : "");
+  $("fItems").innerHTML = NILAI_DEF.map(s => `<div class="sec"><h3>${esc(s.t)}</h3>${s.items.map(([k, q, opts, note]) => `
+    <div class="item" id="it-${k}"><div class="q">${esc(q)}${note ? `<small>${esc(note)}</small>` : ""}</div>
+      ${["A","B","C"].map((v, i) => `<button type="button" class="opt ${v}" data-k="${k}" data-v="${v}" aria-pressed="false"><b>${v}</b><span>${esc(opts[i])}</span></button>`).join("")}
+      <button type="button" class="opt N" data-k="${k}" data-v="-" aria-pressed="false"><b>–</b><span>Tidak dapat dinilai hari ini</span></button>
+    </div>`).join("")}
+    <button type="button" class="catbtn" data-cat="catatan_${s.k}">${fCur.cat["catatan_" + s.k] ? "Catatan:" : "＋ Tambah catatan bagian ini"}</button>
+    <textarea id="cat-${s.k}" rows="2" ${fCur.cat["catatan_" + s.k] ? "" : "hidden"} style="width:100%;font-size:16px;border:1px solid var(--line);border-radius:10px;padding:10px;background:var(--panel)">${esc(fCur.cat["catatan_" + s.k] || "")}</textarea></div>`).join("");
+  $("fCatUmum").value = fCur.cat.catatan_umum || "";
+  $("fHapusBox").hidden = !(saya || q); $("fHapusSt").value = "";
+  $("fAlert").hidden = true;
+  renderPilihan(); $("vForm").hidden = false; $("vForm").scrollTop = 0; document.body.style.overflow = "hidden";
+  history.pushState({ form: 1 }, "");
+}
+function tutupForm() { $("vForm").hidden = true; document.body.style.overflow = ""; fCur = null; }
+window.addEventListener("popstate", () => { if (!$("vForm").hidden) tutupForm(); });
+$("fBatal").onclick = () => { history.back(); };
+function renderPilihan() {
+  document.querySelectorAll("#fItems .opt").forEach(b => b.setAttribute("aria-pressed", fCur.nilai[b.dataset.k] === b.dataset.v));
+  const s = skorDari(fCur.nilai); $("fSkor").textContent = s === "" ? "–" : s + "%";
+  const kurang = KEYS.filter(k => !fCur.nilai[k]).length;
+  $("fSimpan").textContent = kurang ? `Simpan (${KEYS.length - kurang}/${KEYS.length} terisi)` : "Simpan penilaian";
+}
+$("fItems").addEventListener("click", e => {
+  const o = e.target.closest(".opt");
+  if (o) { fCur.nilai[o.dataset.k] = o.dataset.v; $("it-" + o.dataset.k).classList.remove("miss"); renderPilihan(); if (!$("fAlert").hidden) tampilKurang(false); return; }
+  const c = e.target.closest(".catbtn"); if (c) { const t = $("cat-" + c.dataset.cat.slice(8)); t.hidden = false; c.textContent = "Catatan:"; t.focus(); }
+});
+function tampilKurang(gulir) {
+  const kurang = KEYS.filter(k => !fCur.nilai[k]);
+  if (!kurang.length) { $("fAlert").hidden = true; return []; }
+  const nama = k => { for (const s of NILAI_DEF) for (const i of s.items) if (i[0] === k) return i[1]; return k; };
+  $("fAlert").innerHTML = `<b>Masih ada ${kurang.length} butir yang belum dipilih.</b> Mohon isi semua dulu (pilih “–” kalau memang tidak bisa dinilai hari ini):<br>` +
+    kurang.map(k => `<button type="button" data-ke="${k}">${esc(nama(k))}</button>`).join(" · ");
+  $("fAlert").hidden = false;
+  kurang.forEach(k => $("it-" + k).classList.add("miss"));
+  if (gulir) $("it-" + kurang[0]).scrollIntoView({ behavior: "smooth", block: "center" });
+  return kurang;
+}
+$("fAlert").addEventListener("click", e => { const b = e.target.closest("[data-ke]"); if (b) $("it-" + b.dataset.ke).scrollIntoView({ behavior: "smooth", block: "center" }); });
+$("fSimpan").onclick = () => {
+  if (tampilKurang(true).length) return;
+  const p = { helper_id: fCur.h.id, tanggal: fCur.tanggal, cabang: fCur.cabang };
+  KEYS.forEach(k => p[k] = fCur.nilai[k]);
+  ["a","b","c","d","e"].forEach(s => { const v = ($("cat-" + s).value || "").trim(); if (v) p["catatan_" + s] = v; });
+  const u = $("fCatUmum").value.trim(); if (u) p.catatan_umum = u;
+  // satu penilaian per helper per hari per penilai: ganti antrean lama kalau ada
+  antrean = antrean.filter(x => !(x.helper_id === p.helper_id && x.tanggal === p.tanggal));
+  antrean.push({ op: "simpan", helper_id: p.helper_id, tanggal: p.tanggal, p, nama: fCur.h.nama, waktu: Date.now() });
+  LS.set("antrean", antrean);
+  const nama = fCur.h.nama; history.back();
+  toast(navigator.onLine ? `Penilaian ${nama} disimpan.` : `Offline: penilaian ${nama} disimpan di HP dan dikirim otomatis saat ada internet.`);
+  renderHari(); renderSync(); sinkron();
+};
+$("fHapus").onclick = () => {
+  const b = $("fHapus"), status = $("fHapusSt").value;
+  if (!b.dataset.sure) { b.dataset.sure = "1"; b.textContent = status ? `Yakin hapus & tandai ${status}? Ketuk lagi` : "Yakin hapus? Ketuk lagi"; return; }
+  delete b.dataset.sure; b.textContent = "Hapus penilaian";
+  const hid = fCur.h.id, tgl = fCur.tanggal;
+  antrean = antrean.filter(x => !(x.helper_id === hid && x.tanggal === tgl));
+  if (fCur.saya || status) antrean.push({ op: "hapus", helper_id: hid, tanggal: tgl, id: [hid, tgl, slug(sesi.akun.nama)].join("|"), status, nama: fCur.h.nama, waktu: Date.now() });
+  LS.set("antrean", antrean);
+  history.back(); toast("Penilaian dihapus" + (status ? ` dan ditandai ${status}.` : ".")); renderHari(); renderSync(); sinkron();
+  if (!$("tRiwayat").hidden) renderRiwayat();
+};
+$("fHapusSt").onchange = () => { const b = $("fHapus"); delete b.dataset.sure; b.textContent = "Hapus penilaian"; };
+
+// ---------- kirim antrean ----------
+let sinkronJalan = false;
+async function sinkron() {
+  if (sinkronJalan || !antrean.length || !sesi || !navigator.onLine) { renderSync(); return; }
+  sinkronJalan = true; renderSync();
+  let terkirim = 0;
+  try {
+    while (antrean.length) {
+      const it = antrean[0];
+      try {
+        if (it.op === "simpan") await api("simpan", { p: it.p }); else await api("hapus", { id: it.id, status: it.status, helper_id: it.helper_id, tanggal: it.tanggal });
+        antrean.shift(); terkirim++;
+      } catch (e) {
+        if (e.offline) break;
+        if (e.sesi) { LS.set("antrean", antrean); sinkronJalan = false; return sesiHabis(e.message); }
+        antrean.shift(); gagal.push(Object.assign({}, it, { error: e.message })); LS.set("gagal", gagal);
+        toast(`Penilaian ${it.nama} ditolak server: ${e.message}`, 6000);
+      }
+      LS.set("antrean", antrean); renderSync();
+    }
+  } finally { sinkronJalan = false; renderSync(); }
+  if (terkirim) { if (!antrean.length) toast(`${terkirim} penilaian terkirim ke server.`); muatHari(); Object.keys(localStorage).filter(k => k.indexOf("kc_riw_") === 0).forEach(k => localStorage.removeItem(k)); if (!$("tRiwayat").hidden) muatRiwayat(); }
+}
+window.addEventListener("online", () => { renderSync(); sinkron(); muatHari(); });
+window.addEventListener("offline", renderSync);
+document.addEventListener("visibilitychange", () => { if (!document.hidden && sesi) { sinkron(); if ($("vForm").hidden) muatHari(); } });
+setInterval(() => { if (!document.hidden && sesi) sinkron(); }, 60000);
+
+// ---------- riwayat ----------
+function bulanIni() { const d = new Date(); return new Date(d.getFullYear(), d.getMonth(), 1); }
+async function muatRiwayat() {
+  if (!st.bulan) st.bulan = bulanIni();
+  const m = isoLokal(st.bulan), akhir = isoLokal(new Date(st.bulan.getFullYear(), st.bulan.getMonth() + 1, 0)), k = "riw_" + m;
+  $("rJudul").textContent = `${BULAN[st.bulan.getMonth()]} ${st.bulan.getFullYear()}`;
+  $("rNext").disabled = st.bulan >= bulanIni();
+  st.riwayat = LS.get(k, null); renderRiwayat(st.riwayat ? "" : "Memuat…");
+  try { const r = await api("riwayat", { mulai: m, sampai: akhir }); LS.set(k, r); if ($("rJudul").textContent.indexOf(BULAN[st.bulan.getMonth()]) === 0) { st.riwayat = r; renderRiwayat(); } }
+  catch (e) { if (e.sesi) return sesiHabis(e.message); if (!st.riwayat) renderRiwayat(e.offline ? "Riwayat bulan ini belum tersimpan di HP. Butuh internet untuk memuatnya." : e.message); }
+}
+$("rPrev").onclick = () => { st.bulan = new Date(st.bulan.getFullYear(), st.bulan.getMonth() - 1, 1); muatRiwayat(); };
+$("rNext").onclick = () => { st.bulan = new Date(st.bulan.getFullYear(), st.bulan.getMonth() + 1, 1); muatRiwayat(); };
+function renderRiwayat(pesan) {
+  $("gagalBox").innerHTML = gagal.length ? `<div class="banner" style="background:var(--bad);color:var(--bad-ink)"><b>${gagal.length} penilaian ditolak server</b>${gagal.map((g, i) => `<div style="margin-top:6px">${esc(g.nama)} · ${esc(tglPendek(g.tanggal))}: ${esc(g.error)} <button class="catbtn" style="color:inherit" data-buang="${i}">Buang</button></div>`).join("")}</div>` : "";
+  const pend = antrean.map(x => `<div class="hcard pend"><div class="info"><div class="nm">${esc(x.nama)}</div><div class="sub">${esc(tglPendek(x.tanggal))} · ${x.op === "hapus" ? "akan dihapus" : "menunggu dikirim"}</div></div><div class="sk">${x.op === "simpan" ? skorDari(x.p) + "%" : ""}</div></div>`).join("");
+  const rows = (st.riwayat || []).filter(r => !antrean.some(x => x.helper_id === r.helper_id && x.tanggal === r.tanggal));
+  let html = pend ? `<div class="day">Belum terkirim</div><div class="list">${pend}</div>` : "";
+  let hari = "";
+  rows.forEach(r => {
+    if (r.tanggal !== hari) { html += `${hari ? "</div>" : ""}<div class="day">${esc(tglPanjang(r.tanggal))}</div><div class="list">`; hari = r.tanggal; }
+    html += `<button class="hcard done" data-riw="${esc(r.id)}"><div class="info"><div class="nm">${esc(r.helper_nama)}${r.rotasi === "TRUE" ? '<span class="tag rot">↻ rotasi</span>' : ""}</div><div class="sub">${esc(r.cabang)}${sesi.akun.peran === "admin" && !milikSaya(r) ? " · " + esc(r.penilai) : ""}${r.catatan_umum ? " · " + esc(r.catatan_umum.slice(0, 60)) : ""}</div></div><div class="sk">${esc(r.skor)}%</div></button>`;
+  });
+  if (hari) html += "</div>";
+  $("rList").innerHTML = html || `<p class="muted center" style="margin-top:20px">${esc(pesan || "Belum ada penilaian di bulan ini.")}</p>`;
+}
+$("rList").addEventListener("click", e => { const b = e.target.closest("[data-riw]"); if (!b) return; const r = (st.riwayat || []).find(x => x.id === b.dataset.riw); if (!r) return;
+  if (!milikSaya(r)) { toast("Ini penilaian kacab lain (hanya bisa dilihat)."); }
+  bukaForm({ id: r.helper_id, nama: r.helper_nama, penempatan: r.cabang_asal }, r.tanggal, r.cabang, milikSaya(r) ? r : null);
+  if (!milikSaya(r)) { KEYS.forEach(k => fCur.nilai[k] = r[k]); renderPilihan(); $("fSimpan").hidden = true; $("fHapusBox").hidden = true; } else $("fSimpan").hidden = false; });
+$("gagalBox").addEventListener("click", e => { const b = e.target.closest("[data-buang]"); if (!b) return; gagal.splice(+b.dataset.buang, 1); LS.set("gagal", gagal); renderRiwayat(); });
+const _bukaForm = bukaForm; bukaForm = function () { $("fSimpan").hidden = false; return _bukaForm.apply(this, arguments); };
+
+// ---------- akun ----------
+function renderAkun() {
+  $("aNama").textContent = sesi.akun.nama;
+  $("aInfo").textContent = `${sesi.akun.jabatan || "Kepala cabang"} · ${sesi.akun.cabang || "semua cabang"}${sesi.akun.peran === "admin" ? " · admin" : ""}`;
+  $("aVersi").textContent = VERSI; renderSync();
+}
+$("pSimpan").onclick = async () => {
+  const lama = $("pLama").value.trim(), baru = $("pBaru").value.trim();
+  if (!/^\d{4,8}$/.test(baru)) { $("pErr").textContent = "PIN baru harus 4–8 angka."; return; }
+  $("pErr").textContent = "Menyimpan…";
+  try { await api("gantiPin", { lama, baru }); $("pErr").textContent = ""; $("pLama").value = $("pBaru").value = ""; toast("PIN berhasil diganti."); }
+  catch (e) { $("pErr").textContent = e.offline ? "Butuh internet untuk mengganti PIN." : e.message; }
+};
+$("aKeluar").onclick = () => keluar();
+
+// ---------- pasang ke layar utama ----------
+let promptPasang = null;
+const isIOS = /iphone|ipad|ipod/i.test(navigator.userAgent) || (navigator.platform === "MacIntel" && navigator.maxTouchPoints > 1);
+const terpasang = () => window.matchMedia("(display-mode: standalone)").matches || navigator.standalone === true;
+window.addEventListener("beforeinstallprompt", e => { e.preventDefault(); promptPasang = e; tampilInstall(); });
+window.addEventListener("appinstalled", () => { promptPasang = null; tampilInstall(); toast("Aplikasi terpasang di layar utama."); });
+function tampilInstall() {
+  let html = "";
+  if (!terpasang()) {
+    if (promptPasang) html = `<div class="banner rw"><span>Pasang aplikasi ini di layar utama supaya lebih cepat dibuka.</span><button class="btn" data-pasang="1">Pasang</button></div>`;
+    else if (isIOS) html = `<div class="banner"><b>Pasang di iPhone:</b> buka halaman ini di <b>Safari</b>, ketuk tombol <b>Bagikan</b> (kotak dengan panah ke atas), lalu pilih <b>Tambahkan ke Layar Utama</b>.</div>`;
+    else html = `<div class="banner"><b>Pasang di Android:</b> di Chrome ketuk menu <b>⋮</b> lalu <b>Instal aplikasi</b> / <b>Tambahkan ke layar utama</b>.</div>`;
+  }
+  ["installHint1", "installHint2", "installHint3"].forEach(id => { const el = $(id); if (el) el.innerHTML = (id === "installHint2" && LS.get("tutupHint", 0)) ? "" : html; });
+}
+document.addEventListener("click", async e => { if (!e.target.closest("[data-pasang]") || !promptPasang) return; promptPasang.prompt(); await promptPasang.userChoice.catch(() => {}); promptPasang = null; tampilInstall(); });
+
+// ---------- service worker (offline) ----------
+if ("serviceWorker" in navigator && location.protocol !== "file:") {
+  navigator.serviceWorker.register("sw.js").then(reg => {
+    reg.addEventListener("updatefound", () => { const w = reg.installing; w && w.addEventListener("statechange", () => {
+      if (w.state === "installed" && navigator.serviceWorker.controller) { toast("Versi baru aplikasi tersedia. Memuat ulang…", 2500); w.postMessage("skipWaiting"); } }); });
+  }).catch(() => {});
+  let reloaded = false;
+  navigator.serviceWorker.addEventListener("controllerchange", () => { if (reloaded || !$("vForm").hidden || antrean.length && sinkronJalan) return; reloaded = true; location.reload(); });
+}
+
+// ---------- jalankan ----------
+if (sesi && sesi.token) mulaiApp(); else { tampil("vLogin"); muatAkunLogin(); tampilInstall(); }
+</script>
+</body>
+</html>
