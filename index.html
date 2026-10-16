@@ -107,6 +107,14 @@ nav.tabs button{position:relative}
 .ticker .tk{display:inline-block;padding:7px 0 7px 100%;font-size:13px;font-weight:600;animation:tk 20s linear infinite}
 @keyframes tk{from{transform:translateX(0)}to{transform:translateX(-100%)}}
 @media (prefers-reduced-motion:reduce){.ticker .tk{animation:none;padding-left:10px;white-space:normal}.bell.ada svg{animation:none}}
+.pantau{display:grid;grid-template-columns:minmax(0,1fr);gap:6px;margin-top:10px}
+.pantau h3{margin:4px 0 2px;font-size:14px;color:var(--muted);text-transform:uppercase;letter-spacing:.04em}
+.pc{display:flex;align-items:center;gap:10px;width:100%;text-align:left;background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:10px 12px;cursor:pointer;font:inherit;color:inherit}
+.pc.sel{outline:2px solid var(--accent)}
+.pc .info{flex:1;min-width:0;overflow:hidden}.pc .n{flex:0 0 auto}.chips2 .chip{border:1px solid var(--line)}.pc .nm{font-weight:700}.pc .sub{font-size:12px;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.pc .n{font-weight:800;font-size:15px;white-space:nowrap}.pc .n.ok{color:var(--ok-ink)}.pc .n.no{color:var(--bad-ink)}
+.pc .bar{height:5px;border-radius:9px;background:var(--line);margin-top:5px;overflow:hidden}.pc .bar i{display:block;height:100%;background:var(--accent)}
+.chips2{display:flex;flex-wrap:wrap;gap:6px;margin-top:6px}
 .prday{background:var(--panel);border:1px solid var(--line);border-left:5px solid #D93025;border-radius:12px;padding:12px 14px;display:flex;gap:10px;align-items:center}
 .prday.today{border-left-color:var(--accent)}
 .prday .info{flex:1;min-width:0}
@@ -154,6 +162,7 @@ nav.tabs button{position:relative}
       <p class="small" id="progTxt" style="margin:10px 0 0"></p>
       <div class="prog"><i id="progBar"></i></div>
     </div>
+    <div id="pantauBox" class="pantau" hidden></div>
     <div id="prBox"></div>
     <div id="notifHint"></div>
     <div id="installHint2"></div>
@@ -249,7 +258,7 @@ nav.tabs button{position:relative}
 // ===================== PENGATURAN =====================
 // Alamat Apps Script (URL /exec dari Deploy > Manage deployments). Sama dengan link web admin.
 const API = "https://script.google.com/macros/s/AKfycbx0VfKovPWgOiXGgeHxzJ5J24QJ91EWrqptM0XhdR5Dy9ypvFawUxnOGOvqx15D7FTMLA/exec";
-const VERSI = "1.2 (16 Okt 2026)";
+const VERSI = "1.3 (16 Okt 2026)";
 // ======================================================
 const NILAI_DEF=[
  {k:"a",t:"A. Penampilan & kesiapan diri",items:[
@@ -383,15 +392,15 @@ function mulaiApp() {
   simpanSesiSW();
   tampil("vApp");
   $("hNama").textContent = sesi.akun.nama;
-  $("hJabatan").textContent = `${sesi.akun.jabatan || "Kepala cabang"}${sesi.akun.cabang ? " · " + sesi.akun.cabang : ""}`;
+  $("hJabatan").textContent = isAdmin() ? `${sesi.akun.jabatan || "Admin"} · semua cabang` : `${sesi.akun.jabatan || "Kepala cabang"}${sesi.akun.cabang ? " · " + sesi.akun.cabang : ""}`;
   st.cabang = LS.get("cabang", "") || sesi.akun.cabang || "";
   const cabs = [...new Set((sesi.cabang || []).concat(sesi.akun.cabang ? [sesi.akun.cabang] : []))].sort();
   $("fCab").innerHTML = '<option value="">Pilih cabang…</option>' + cabs.map(c => `<option ${c === st.cabang ? "selected" : ""}>${esc(c)}</option>`).join("");
   $("fTgl").value = st.tanggal; $("fTgl").max = hariIni();
-  bukaTab("tNilai"); renderSync(); muatHari(); sinkron(); tampilInstall(); muatPR(); renderNotif();
+  bukaTab("tNilai"); renderSync(); muatHari(); sinkron(); tampilInstall(); muatPR(); renderNotif(); muatPantau();
   api("saya").then(r => { sesi.akun = r.akun; sesi.cabang = r.cabang; LS.set("sesi", sesi); }).catch(e => { if (e.sesi) sesiHabis(e.message); });
 }
-$("fTgl").onchange = () => { const v = $("fTgl").value; if (!v) return; if (v > hariIni()) { $("fTgl").value = hariIni(); toast("Tidak bisa menilai hari yang belum terjadi."); } st.tanggal = $("fTgl").value; muatHari(); };
+$("fTgl").onchange = () => { const v = $("fTgl").value; if (!v) return; if (v > hariIni()) { $("fTgl").value = hariIni(); toast("Tidak bisa menilai hari yang belum terjadi."); } st.tanggal = $("fTgl").value; muatHari(); muatPantau(); };
 $("fCab").onchange = () => { st.cabang = $("fCab").value; LS.set("cabang", st.cabang); muatHari(); };
 
 // ---------- daftar helper hari ini ----------
@@ -510,7 +519,7 @@ $("fSimpan").onclick = () => {
   LS.set("antrean", antrean);
   const nama = fCur.h.nama; history.back();
   toast(navigator.onLine ? `Penilaian ${nama} disimpan.` : `Offline: penilaian ${nama} disimpan di HP dan dikirim otomatis saat ada internet.`);
-  renderHari(); renderSync(); renderPR(); sinkron();
+  renderHari(); renderSync(); renderPR(); renderPantau(LS.get("pantau_" + st.tanggal, null)); sinkron();
 };
 $("fHapus").onclick = () => {
   const b = $("fHapus"), status = $("fHapusSt").value;
@@ -546,7 +555,7 @@ async function sinkron() {
       LS.set("antrean", antrean); renderSync();
     }
   } finally { sinkronJalan = false; renderSync(); }
-  if (terkirim) { if (!antrean.length) toast(`${terkirim} penilaian terkirim ke server.`); muatHari(); muatPR(); Object.keys(localStorage).filter(k => k.indexOf("kc_riw_") === 0).forEach(k => localStorage.removeItem(k)); if (!$("tRiwayat").hidden) muatRiwayat(); }
+  if (terkirim) { if (!antrean.length) toast(`${terkirim} penilaian terkirim ke server.`); muatHari(); muatPR(); muatPantau(); Object.keys(localStorage).filter(k => k.indexOf("kc_riw_") === 0).forEach(k => localStorage.removeItem(k)); if (!$("tRiwayat").hidden) muatRiwayat(); }
 }
 window.addEventListener("online", () => { renderSync(); sinkron(); muatHari(); });
 window.addEventListener("offline", renderSync);
@@ -564,7 +573,7 @@ function dataPR() {
   // buang helper yang sudah dinilai di HP ini (termasuk yang belum terkirim) & yang sudah dinilai di data hari yang dimuat
   return r.daftar.map(x => ({ tanggal: x.tanggal, helper: x.helper.filter(h =>
       !antrean.some(q => q.op === "simpan" && q.helper_id === h.id && q.tanggal === x.tanggal) &&
-      !(st.data && st.data.tanggal === x.tanggal && st.data.cabang === sesi.akun.cabang && st.data.nilai.some(n => n.helper_id === h.id))) }))
+      !(st.data && st.data.tanggal === x.tanggal && st.data.cabang === (h.cabang || sesi.akun.cabang) && st.data.nilai.some(n => n.helper_id === h.id && n.cabang === st.data.cabang))) }))
     .filter(x => x.helper.length);
 }
 function renderPR() {
@@ -579,9 +588,16 @@ function renderPR() {
   // teks berjalan
   const sebut = hs => hs.length <= 3 ? hs.map(h => h.nama).join(", ") : `${hs.length} helper (${hs.slice(0, 2).map(h => h.nama).join(", ")}, …)`;
   const bagian = [];
+  if (isAdmin()) {
+    const perCab = list => { const m = {}; list.forEach(h => m[h.cabang] = (m[h.cabang] || 0) + 1); return Object.keys(m).sort().map(c => `${c} ${m[c]}`).join(", "); };
+    if (kini) bagian.push(`Hari ini belum lengkap: ${perCab(kini.helper)}`);
+    if (lalu.length) { const hari = {}; lalu.forEach(x => x.helper.forEach(h => { (hari[h.cabang] = hari[h.cabang] || new Set()).add(x.tanggal); }));
+      bagian.push(`PR sebelumnya: ${Object.keys(hari).sort().map(c => `${c} ${hari[c].size} hari`).join(", ")}`); }
+  } else {
   if (kini) bagian.push(`Hari ini belum dinilai: ${sebut(kini.helper)}`);
   if (lalu.length) bagian.push(`PR ${lalu.length} hari belum lengkap (${totalLalu} penilaian)`);
   lalu.slice().reverse().forEach(x => bagian.push(`${tglPendek(x.tanggal)}: ${sebut(x.helper)}`));
+  }
   const tk = $("ticker"), txt = $("tickerTxt");
   if (bagian.length) {
     const t = bagian.join("   •   ") + (lalu.length ? "   •   Ketuk untuk mengisi" : "");
@@ -595,9 +611,15 @@ function renderPR() {
 function renderPanelPR() {
   const daftar = dataPR().sort((a, b) => b.tanggal.localeCompare(a.tanggal)), hi = hariIni();
   const n = daftar.reduce((t, x) => t + x.helper.length, 0);
-  $("prSub").textContent = n ? `${n} penilaian belum diisi · ${sesi.akun.cabang || ""}` : "Semua sudah dinilai";
-  $("prList").innerHTML = daftar.length ? daftar.map(x => `<div class="prday${x.tanggal === hi ? " today" : ""}"><div class="info"><div class="nm">${x.tanggal === hi ? "Hari ini · " : ""}${esc(tglPanjang(x.tanggal))}</div><div class="sub">${x.helper.length} helper: ${esc(x.helper.map(h => h.nama).join(", "))}</div></div><button class="btn" data-pr="${esc(x.tanggal)}">Isi</button></div>`).join("")
-    : `<div class="card center">✅ Tidak ada PR. Semua helper sudah dinilai.</div>`;
+  $("prSub").textContent = n ? `${n} penilaian belum diisi · ${isAdmin() ? "semua cabang" : (sesi.akun.cabang || "")}` : "Semua sudah dinilai";
+  $("prList").innerHTML = daftar.length ? daftar.map(x => {
+    const judul = `${x.tanggal === hi ? "Hari ini · " : ""}${esc(tglPanjang(x.tanggal))}`;
+    if (isAdmin()) {
+      const per = {}; x.helper.forEach(h => (per[h.cabang] = per[h.cabang] || []).push(h.nama));
+      return `<div class="prday${x.tanggal === hi ? " today" : ""}"><div class="info"><div class="nm">${judul}</div><div class="chips2">${Object.keys(per).sort().map(c => `<button class="chip" data-pr="${esc(x.tanggal)}" data-cab="${esc(c)}" title="${esc(per[c].join(", "))}">${esc(c)} · ${per[c].length}</button>`).join("")}</div></div></div>`;
+    }
+    return `<div class="prday${x.tanggal === hi ? " today" : ""}"><div class="info"><div class="nm">${judul}</div><div class="sub">${x.helper.length} helper: ${esc(x.helper.map(h => h.nama).join(", "))}</div></div><button class="btn" data-pr="${esc(x.tanggal)}">Isi</button></div>`;
+  }).join("") : `<div class="card center">✅ Tidak ada PR. Semua helper sudah dinilai.</div>`;
 }
 function bukaPanelPR() { renderPanelPR(); $("vPR").hidden = false; document.body.style.overflow = "hidden"; history.pushState({ pr: 1 }, ""); muatPR(); }
 function tutupPanelPR() { $("vPR").hidden = true; document.body.style.overflow = ""; }
@@ -605,12 +627,36 @@ $("bellBtn").onclick = bukaPanelPR;
 $("ticker").onclick = bukaPanelPR;
 $("prTutup").onclick = () => history.back();
 window.addEventListener("popstate", () => { if (!$("vPR").hidden) tutupPanelPR(); });
-$("prList").addEventListener("click", e => { const b = e.target.closest("[data-pr]"); if (!b) return; history.back(); pilihTanggalPR(b.dataset.pr); });
-function pilihTanggalPR(t) {
+$("prList").addEventListener("click", e => { const b = e.target.closest("[data-pr]"); if (!b) return; history.back(); pilihTanggalPR(b.dataset.pr, b.dataset.cab); });
+function pilihTanggalPR(t, cab) {
   st.tanggal = t; $("fTgl").value = t; bukaTab("tNilai");
-  if (sesi.akun.cabang && st.cabang !== sesi.akun.cabang) { st.cabang = sesi.akun.cabang; $("fCab").value = st.cabang; LS.set("cabang", st.cabang); }
-  muatHari(); renderPR(); window.scrollTo({ top: 0, behavior: "smooth" });
+  const c = cab || (isAdmin() ? st.cabang : sesi.akun.cabang);
+  if (c && st.cabang !== c) { st.cabang = c; $("fCab").value = st.cabang; LS.set("cabang", st.cabang); }
+  muatHari(); muatPantau(); renderPR(); window.scrollTo({ top: 0, behavior: "smooth" });
 }
+// ---------- pantauan semua cabang (khusus admin) ----------
+const isAdmin = () => !!(sesi && sesi.akun && sesi.akun.peran === "admin");
+async function muatPantau() {
+  if (!isAdmin()) { $("pantauBox").hidden = true; return; }
+  const k = "pantau_" + st.tanggal; renderPantau(LS.get(k, null));
+  try { const r = await api("pantau", { tanggal: st.tanggal }); LS.set(k, r); if (k === "pantau_" + st.tanggal) renderPantau(r); }
+  catch (e) { if (e.sesi) return sesiHabis(e.message); }
+}
+function renderPantau(r) {
+  const box = $("pantauBox"); box.hidden = !isAdmin(); if (!isAdmin()) return;
+  if (!r) { box.innerHTML = '<h3>Pantauan semua cabang</h3><div class="card muted small">Memuat…</div>'; return; }
+  // yang sudah dinilai di HP ini tapi belum terkirim ikut dihitung
+  const rows = r.map(c => { const q = antrean.filter(x => x.op === "simpan" && x.tanggal === st.tanggal && x.p.cabang === c.cabang).length; return Object.assign({}, c, { dinilai: Math.min(c.tugas, c.dinilai + q) }); });
+  const tot = rows.reduce((t, c) => t + c.tugas, 0), sdh = rows.reduce((t, c) => t + c.dinilai, 0);
+  rows.sort((a, b) => (a.dinilai / a.tugas) - (b.dinilai / b.tugas) || a.cabang.localeCompare(b.cabang));
+  box.innerHTML = `<h3>Pantauan semua cabang · ${sdh}/${tot} dinilai</h3>` + (rows.map(c => {
+    const pct = c.tugas ? Math.round(c.dinilai / c.tugas * 100) : 0, beres = c.dinilai >= c.tugas;
+    return `<button class="pc${c.cabang === st.cabang ? " sel" : ""}" data-pc="${esc(c.cabang)}"><div class="info"><div class="nm">${esc(c.cabang)}</div><div class="sub">${esc(c.kacab.join(", ") || "belum ada akun kacab")}${!beres && c.belum.length ? " · belum: " + esc(c.belum.join(", ")) : ""}</div><div class="bar"><i style="width:${pct}%"></i></div></div><div class="n ${beres ? "ok" : "no"}">${beres ? "✓ " : ""}${c.dinilai}/${c.tugas}</div></button>`;
+  }).join("") || '<div class="card muted small">Tidak ada helper yang dijadwalkan di tanggal ini.</div>');
+}
+$("pantauBox").addEventListener("click", e => { const b = e.target.closest("[data-pc]"); if (!b) return;
+  st.cabang = b.dataset.pc; $("fCab").value = st.cabang; LS.set("cabang", st.cabang); muatHari(); renderPantau(LS.get("pantau_" + st.tanggal, null));
+  setTimeout(() => $("hList").scrollIntoView({ behavior: "smooth", block: "start" }), 50); });
 
 
 // ---------- notifikasi push ----------
