@@ -87,6 +87,31 @@ nav.tabs button[aria-selected="true"]{color:var(--accent);font-weight:700}
 .center{text-align:center}
 .logo{width:72px;height:72px;border-radius:18px;display:block;margin:24px auto 8px}
 .err{color:var(--bad-ink);font-size:14px;min-height:1.2em}
+.pr{background:var(--bad);color:var(--bad-ink);border-radius:12px;padding:12px 14px;margin-top:10px}
+.pr b{display:block;margin-bottom:6px}
+.chips{display:flex;flex-wrap:wrap;gap:6px}
+.chip{border:0;border-radius:999px;padding:7px 12px;font-size:13px;font-weight:600;background:var(--panel);color:var(--ink);cursor:pointer}
+.chip.now{outline:2px solid var(--bad-ink)}
+nav.tabs button{position:relative}
+.badge{position:absolute;top:4px;left:calc(50% + 6px);min-width:18px;height:18px;border-radius:9px;background:#D93025;color:#fff;font-size:11px;font-weight:700;display:grid;place-items:center;padding:0 5px}
+.notif-st{font-size:14px;margin:4px 0 0}
+.hright{display:flex;align-items:center;gap:8px}
+.bell{position:relative;width:40px;height:40px;border-radius:50%;border:0;background:rgba(255,255,255,.18);color:inherit;display:grid;place-items:center;cursor:pointer}
+.bell svg{width:22px;height:22px}
+.bell.ada svg{animation:ring 2.4s ease-in-out infinite;transform-origin:50% 2px}
+.bell .bb{position:absolute;top:-2px;right:-2px;min-width:19px;height:19px;border-radius:10px;background:#D93025;color:#fff;font-size:11px;font-weight:800;display:grid;place-items:center;padding:0 5px;border:2px solid var(--accent)}
+@keyframes ring{0%,60%,100%{transform:rotate(0)}5%{transform:rotate(16deg)}10%{transform:rotate(-14deg)}15%{transform:rotate(10deg)}20%{transform:rotate(-8deg)}25%{transform:rotate(4deg)}30%{transform:rotate(0)}}
+.ticker{max-width:640px;margin:8px auto 0;display:flex;align-items:stretch;border-radius:8px;overflow:hidden;background:#FFE8E5;color:#9B1C12;cursor:pointer;border:0;width:100%;padding:0;font:inherit;text-align:left}
+.ticker .ic{flex:0 0 auto;display:grid;place-items:center;padding:0 9px;background:#D93025;color:#fff;font-size:12px;font-weight:800;letter-spacing:.03em}
+.ticker .tw{flex:1;overflow:hidden;white-space:nowrap;position:relative}
+.ticker .tk{display:inline-block;padding:7px 0 7px 100%;font-size:13px;font-weight:600;animation:tk 20s linear infinite}
+@keyframes tk{from{transform:translateX(0)}to{transform:translateX(-100%)}}
+@media (prefers-reduced-motion:reduce){.ticker .tk{animation:none;padding-left:10px;white-space:normal}.bell.ada svg{animation:none}}
+.prday{background:var(--panel);border:1px solid var(--line);border-left:5px solid #D93025;border-radius:12px;padding:12px 14px;display:flex;gap:10px;align-items:center}
+.prday.today{border-left-color:var(--accent)}
+.prday .info{flex:1;min-width:0}
+.prday .nm{font-weight:700}
+.prday .sub{font-size:13px;color:var(--muted)}
 </style>
 </head>
 <body>
@@ -110,9 +135,14 @@ nav.tabs button[aria-selected="true"]{color:var(--accent);font-weight:700}
 <!-- ============ APLIKASI ============ -->
 <section id="vApp" hidden>
   <header class="top"><div class="row">
-    <div><b id="hNama"></b><small id="hJabatan"></small></div>
-    <span class="pill on" id="syncPill">Online</span>
-  </div></header>
+    <div style="min-width:0"><b id="hNama"></b><small id="hJabatan"></small></div>
+    <div class="hright">
+      <button class="bell" id="bellBtn" aria-label="Pengingat penilaian"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8a6 6 0 0 0-12 0c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg><span class="bb" id="bellBadge" hidden></span></button>
+      <span class="pill on" id="syncPill">Online</span>
+    </div>
+  </div>
+  <button class="ticker" id="ticker" hidden aria-label="Lihat penilaian yang belum diisi"><span class="ic">🔔 PR</span><span class="tw"><span class="tk" id="tickerTxt"></span></span></button>
+  </header>
 
   <!-- tab nilai -->
   <main id="tNilai" class="wrap">
@@ -124,6 +154,8 @@ nav.tabs button[aria-selected="true"]{color:var(--accent);font-weight:700}
       <p class="small" id="progTxt" style="margin:10px 0 0"></p>
       <div class="prog"><i id="progBar"></i></div>
     </div>
+    <div id="prBox"></div>
+    <div id="notifHint"></div>
     <div id="installHint2"></div>
     <div class="list" id="hList"></div>
     <div id="absenBox" class="card" style="margin-top:10px" hidden><b class="small">Tidak masuk menurut jadwal</b><div class="absen" id="absenList"></div></div>
@@ -145,6 +177,16 @@ nav.tabs button[aria-selected="true"]{color:var(--accent);font-weight:700}
   <main id="tAkun" class="wrap" hidden>
     <div class="card"><b id="aNama"></b><div class="muted small" id="aInfo"></div></div>
     <div id="installHint3"></div>
+    <div class="card" style="margin-top:10px;display:grid;gap:8px">
+      <b>Notifikasi pengingat</b>
+      <p class="small muted" style="margin:0">Setiap hari sekitar jam 17.00, HP ini mendapat notifikasi kalau masih ada helper yang belum Anda nilai (hari ini atau hari-hari sebelumnya).</p>
+      <p class="notif-st" id="nfStatus"></p>
+      <div style="display:flex;gap:8px;flex-wrap:wrap">
+        <button class="btn" id="nfOn">Aktifkan notifikasi</button>
+        <button class="btn ghost" id="nfUji" hidden>Kirim notifikasi uji</button>
+        <button class="btn ghost" id="nfOff" hidden>Matikan</button>
+      </div>
+    </div>
     <div class="card" style="margin-top:10px;display:grid;gap:10px">
       <b>Ganti PIN</b>
       <div class="grid2"><label class="field">PIN lama<input id="pLama" type="password" inputmode="numeric" maxlength="8"></label><label class="field">PIN baru (4–8 angka)<input id="pBaru" type="password" inputmode="numeric" maxlength="8"></label></div>
@@ -161,7 +203,7 @@ nav.tabs button[aria-selected="true"]{color:var(--accent);font-weight:700}
   </main>
 
   <nav class="tabs" role="tablist">
-    <button role="tab" data-tab="tNilai" aria-selected="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg>Nilai hari ini</button>
+    <button role="tab" data-tab="tNilai" aria-selected="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg>Nilai hari ini<span class="badge" id="prBadge" hidden></span></button>
     <button role="tab" data-tab="tRiwayat" aria-selected="false"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 3"/></svg>Riwayat</button>
     <button role="tab" data-tab="tAkun" aria-selected="false"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="4"/><path d="M4 21a8 8 0 0 1 16 0"/></svg>Akun</button>
   </nav>
@@ -192,12 +234,22 @@ nav.tabs button[aria-selected="true"]{color:var(--accent);font-weight:700}
   </div></div>
 </section>
 
+<!-- ============ PANEL PENGINGAT ============ -->
+<section id="vPR" class="sheet" hidden>
+  <header class="top"><div class="row">
+    <div><b>Pengingat penilaian</b><small id="prSub"></small></div>
+    <button class="btn" id="prTutup" style="background:rgba(255,255,255,.2);color:inherit;min-height:36px;padding:6px 14px">Tutup</button>
+  </div></header>
+  <div class="wrap"><div class="list" id="prList"></div>
+    <p class="small muted" style="margin-top:12px">Daftar ini mengikuti jadwal penempatan dari admin, 14 hari terakhir. Kalau helper ternyata libur/sakit di tanggal itu, beri tahu admin supaya jadwalnya diperbaiki, atau buka penilaiannya dan pilih tandai libur.</p></div>
+</section>
+
 <div class="toast" id="toast" hidden></div>
 <script>
 // ===================== PENGATURAN =====================
 // Alamat Apps Script (URL /exec dari Deploy > Manage deployments). Sama dengan link web admin.
 const API = "https://script.google.com/macros/s/AKfycbx0VfKovPWgOiXGgeHxzJ5J24QJ91EWrqptM0XhdR5Dy9ypvFawUxnOGOvqx15D7FTMLA/exec";
-const VERSI = "1.0 (13 Okt 2026)";
+const VERSI = "1.2 (16 Okt 2026)";
 // ======================================================
 const NILAI_DEF=[
  {k:"a",t:"A. Penampilan & kesiapan diri",items:[
@@ -272,7 +324,7 @@ function bukaTab(id) {
   document.querySelectorAll("nav.tabs button").forEach(b => b.setAttribute("aria-selected", b.dataset.tab === id));
   ["tNilai", "tRiwayat", "tAkun"].forEach(x => $(x).hidden = x !== id);
   if (id === "tRiwayat") muatRiwayat();
-  if (id === "tAkun") renderAkun();
+  if (id === "tAkun") { renderAkun(); renderNotif(); }
   window.scrollTo(0, 0);
 }
 document.querySelectorAll("nav.tabs button").forEach(b => b.onclick = () => bukaTab(b.dataset.tab));
@@ -311,8 +363,9 @@ $("lMasuk").onclick = async () => {
 $("lPin").addEventListener("keydown", e => { if (e.key === "Enter") $("lMasuk").click(); });
 function keluar(pesan) {
   if (antrean.length && !confirm(`Masih ada ${antrean.length} penilaian yang belum terkirim dan akan hilang kalau keluar sekarang. Tetap keluar?`)) return;
-  if (sesi && navigator.onLine) api("logout").catch(() => {});
-  sesi = null; LS.del("sesi"); antrean = []; LS.set("antrean", antrean);
+  if (sesi && navigator.onLine) { matikanNotif(true).catch(() => {}).finally(() => api("logout").catch(() => {})); }
+  setTimeout(() => { sesi = null; simpanSesiSW(); }, 1500);
+  LS.del("sesi"); LS.del("pr"); antrean = []; LS.set("antrean", antrean);
   Object.keys(localStorage).filter(k => k.indexOf("kc_hari_") === 0 || k.indexOf("kc_riw_") === 0).forEach(k => localStorage.removeItem(k));
   tampil("vLogin"); muatAkunLogin(); if (pesan) $("lErr").textContent = pesan;
 }
@@ -322,8 +375,12 @@ function sesiHabis(msg) {
   $("lErr").textContent = msg + (antrean.length ? ` (${antrean.length} penilaian di HP tetap aman dan dikirim setelah login.)` : "");
 }
 
+// ---------- sesi untuk service worker (dipakai saat notifikasi masuk) ----------
+function simpanSesiSW() { try { if ("caches" in window) caches.open("kc-meta").then(c => sesi ? c.put("sesi", new Response(JSON.stringify({ token: sesi.token, api: API }))) : c.delete("sesi")); } catch (_) {} }
+
 // ---------- mulai ----------
 function mulaiApp() {
+  simpanSesiSW();
   tampil("vApp");
   $("hNama").textContent = sesi.akun.nama;
   $("hJabatan").textContent = `${sesi.akun.jabatan || "Kepala cabang"}${sesi.akun.cabang ? " · " + sesi.akun.cabang : ""}`;
@@ -331,7 +388,7 @@ function mulaiApp() {
   const cabs = [...new Set((sesi.cabang || []).concat(sesi.akun.cabang ? [sesi.akun.cabang] : []))].sort();
   $("fCab").innerHTML = '<option value="">Pilih cabang…</option>' + cabs.map(c => `<option ${c === st.cabang ? "selected" : ""}>${esc(c)}</option>`).join("");
   $("fTgl").value = st.tanggal; $("fTgl").max = hariIni();
-  bukaTab("tNilai"); renderSync(); muatHari(); sinkron(); tampilInstall();
+  bukaTab("tNilai"); renderSync(); muatHari(); sinkron(); tampilInstall(); muatPR(); renderNotif();
   api("saya").then(r => { sesi.akun = r.akun; sesi.cabang = r.cabang; LS.set("sesi", sesi); }).catch(e => { if (e.sesi) sesiHabis(e.message); });
 }
 $("fTgl").onchange = () => { const v = $("fTgl").value; if (!v) return; if (v > hariIni()) { $("fTgl").value = hariIni(); toast("Tidak bisa menilai hari yang belum terjadi."); } st.tanggal = $("fTgl").value; muatHari(); };
@@ -346,7 +403,7 @@ async function muatHari() {
   try {
     const d = await api("hari", { tanggal: st.tanggal, cabang: st.cabang });
     d._waktu = Date.now(); LS.set(k, d);
-    if (k === kunciHari()) { st.data = d; renderHari(); }
+    if (k === kunciHari()) { st.data = d; renderHari(); renderPR(); }
   } catch (e) {
     if (e.sesi) return sesiHabis(e.message);
     if (k === kunciHari()) renderHari(c ? "" : (e.offline ? "Belum ada data tersimpan untuk tanggal & cabang ini. Butuh internet sekali untuk memuatnya." : e.message));
@@ -416,6 +473,7 @@ function bukaForm(h, tanggal, cabang, rekamLama) {
 }
 function tutupForm() { $("vForm").hidden = true; document.body.style.overflow = ""; fCur = null; }
 window.addEventListener("popstate", () => { if (!$("vForm").hidden) tutupForm(); });
+setInterval(() => { if (sesi && !document.hidden) muatPR(); }, 5 * 60000);
 $("fBatal").onclick = () => { history.back(); };
 function renderPilihan() {
   document.querySelectorAll("#fItems .opt").forEach(b => b.setAttribute("aria-pressed", fCur.nilai[b.dataset.k] === b.dataset.v));
@@ -452,7 +510,7 @@ $("fSimpan").onclick = () => {
   LS.set("antrean", antrean);
   const nama = fCur.h.nama; history.back();
   toast(navigator.onLine ? `Penilaian ${nama} disimpan.` : `Offline: penilaian ${nama} disimpan di HP dan dikirim otomatis saat ada internet.`);
-  renderHari(); renderSync(); sinkron();
+  renderHari(); renderSync(); renderPR(); sinkron();
 };
 $("fHapus").onclick = () => {
   const b = $("fHapus"), status = $("fHapusSt").value;
@@ -488,12 +546,117 @@ async function sinkron() {
       LS.set("antrean", antrean); renderSync();
     }
   } finally { sinkronJalan = false; renderSync(); }
-  if (terkirim) { if (!antrean.length) toast(`${terkirim} penilaian terkirim ke server.`); muatHari(); Object.keys(localStorage).filter(k => k.indexOf("kc_riw_") === 0).forEach(k => localStorage.removeItem(k)); if (!$("tRiwayat").hidden) muatRiwayat(); }
+  if (terkirim) { if (!antrean.length) toast(`${terkirim} penilaian terkirim ke server.`); muatHari(); muatPR(); Object.keys(localStorage).filter(k => k.indexOf("kc_riw_") === 0).forEach(k => localStorage.removeItem(k)); if (!$("tRiwayat").hidden) muatRiwayat(); }
 }
 window.addEventListener("online", () => { renderSync(); sinkron(); muatHari(); });
 window.addEventListener("offline", renderSync);
-document.addEventListener("visibilitychange", () => { if (!document.hidden && sesi) { sinkron(); if ($("vForm").hidden) muatHari(); } });
+document.addEventListener("visibilitychange", () => { if (!document.hidden && sesi) { sinkron(); if ($("vForm").hidden) { muatHari(); muatPR(); } } });
 setInterval(() => { if (!document.hidden && sesi) sinkron(); }, 60000);
+
+// ---------- PR: penilaian yang belum diisi ----------
+async function muatPR() {
+  renderPR();
+  try { const r = await api("tunggakan"); LS.set("pr", r); renderPR(); }
+  catch (e) { if (e.sesi) return sesiHabis(e.message); }
+}
+function dataPR() {
+  const r = LS.get("pr", null); if (!r || !sesi) return [];
+  // buang helper yang sudah dinilai di HP ini (termasuk yang belum terkirim) & yang sudah dinilai di data hari yang dimuat
+  return r.daftar.map(x => ({ tanggal: x.tanggal, helper: x.helper.filter(h =>
+      !antrean.some(q => q.op === "simpan" && q.helper_id === h.id && q.tanggal === x.tanggal) &&
+      !(st.data && st.data.tanggal === x.tanggal && st.data.cabang === sesi.akun.cabang && st.data.nilai.some(n => n.helper_id === h.id))) }))
+    .filter(x => x.helper.length);
+}
+function renderPR() {
+  const daftar = dataPR(), hi = hariIni();
+  const lalu = daftar.filter(x => x.tanggal < hi), kini = daftar.find(x => x.tanggal === hi);
+  const total = daftar.reduce((t, x) => t + x.helper.length, 0), totalLalu = lalu.reduce((t, x) => t + x.helper.length, 0);
+  // lonceng
+  $("bellBadge").hidden = !total; $("bellBadge").textContent = total > 99 ? "99+" : total;
+  $("bellBtn").classList.toggle("ada", !!lalu.length);
+  // angka di tab bawah = PR hari-hari sebelumnya
+  $("prBadge").hidden = !totalLalu; $("prBadge").textContent = totalLalu > 99 ? "99+" : totalLalu;
+  // teks berjalan
+  const sebut = hs => hs.length <= 3 ? hs.map(h => h.nama).join(", ") : `${hs.length} helper (${hs.slice(0, 2).map(h => h.nama).join(", ")}, …)`;
+  const bagian = [];
+  if (kini) bagian.push(`Hari ini belum dinilai: ${sebut(kini.helper)}`);
+  if (lalu.length) bagian.push(`PR ${lalu.length} hari belum lengkap (${totalLalu} penilaian)`);
+  lalu.slice().reverse().forEach(x => bagian.push(`${tglPendek(x.tanggal)}: ${sebut(x.helper)}`));
+  const tk = $("ticker"), txt = $("tickerTxt");
+  if (bagian.length) {
+    const t = bagian.join("   •   ") + (lalu.length ? "   •   Ketuk untuk mengisi" : "");
+    if (txt.textContent !== t) { txt.textContent = t; txt.style.animationDuration = Math.max(14, Math.round(t.length * 0.2)) + "s"; }
+    tk.hidden = false; tk.style.background = lalu.length ? "" : "var(--accent-soft)"; tk.style.color = lalu.length ? "" : "var(--accent)";
+    tk.querySelector(".ic").style.background = lalu.length ? "" : "var(--accent)";
+  } else tk.hidden = true;
+  $("prBox").innerHTML = "";
+  if (!$("vPR").hidden) renderPanelPR();
+}
+function renderPanelPR() {
+  const daftar = dataPR().sort((a, b) => b.tanggal.localeCompare(a.tanggal)), hi = hariIni();
+  const n = daftar.reduce((t, x) => t + x.helper.length, 0);
+  $("prSub").textContent = n ? `${n} penilaian belum diisi · ${sesi.akun.cabang || ""}` : "Semua sudah dinilai";
+  $("prList").innerHTML = daftar.length ? daftar.map(x => `<div class="prday${x.tanggal === hi ? " today" : ""}"><div class="info"><div class="nm">${x.tanggal === hi ? "Hari ini · " : ""}${esc(tglPanjang(x.tanggal))}</div><div class="sub">${x.helper.length} helper: ${esc(x.helper.map(h => h.nama).join(", "))}</div></div><button class="btn" data-pr="${esc(x.tanggal)}">Isi</button></div>`).join("")
+    : `<div class="card center">✅ Tidak ada PR. Semua helper sudah dinilai.</div>`;
+}
+function bukaPanelPR() { renderPanelPR(); $("vPR").hidden = false; document.body.style.overflow = "hidden"; history.pushState({ pr: 1 }, ""); muatPR(); }
+function tutupPanelPR() { $("vPR").hidden = true; document.body.style.overflow = ""; }
+$("bellBtn").onclick = bukaPanelPR;
+$("ticker").onclick = bukaPanelPR;
+$("prTutup").onclick = () => history.back();
+window.addEventListener("popstate", () => { if (!$("vPR").hidden) tutupPanelPR(); });
+$("prList").addEventListener("click", e => { const b = e.target.closest("[data-pr]"); if (!b) return; history.back(); pilihTanggalPR(b.dataset.pr); });
+function pilihTanggalPR(t) {
+  st.tanggal = t; $("fTgl").value = t; bukaTab("tNilai");
+  if (sesi.akun.cabang && st.cabang !== sesi.akun.cabang) { st.cabang = sesi.akun.cabang; $("fCab").value = st.cabang; LS.set("cabang", st.cabang); }
+  muatHari(); renderPR(); window.scrollTo({ top: 0, behavior: "smooth" });
+}
+
+
+// ---------- notifikasi push ----------
+const dukungPush = () => "serviceWorker" in navigator && "PushManager" in window && "Notification" in window;
+function b64keU8(s) { const p = "=".repeat((4 - s.length % 4) % 4), b = atob((s + p).replace(/-/g, "+").replace(/_/g, "/")); return Uint8Array.from(b, c => c.charCodeAt(0)); }
+async function langgananSaatIni() { if (!dukungPush()) return null; const reg = await navigator.serviceWorker.getRegistration(); return reg ? reg.pushManager.getSubscription() : null; }
+async function renderNotif() {
+  const stt = $("nfStatus"), on = $("nfOn"), uji = $("nfUji"), off = $("nfOff"), hint = $("notifHint");
+  let html = "", aktif = false, bisa = true;
+  if (isIOS && !terpasang()) { html = "Di iPhone, notifikasi hanya bisa setelah aplikasi dipasang ke Layar Utama (lihat petunjuk di atas), lalu dibuka dari ikonnya."; bisa = false; }
+  else if (!dukungPush()) { html = "HP/browser ini belum mendukung notifikasi. Di iPhone perlu iOS 16.4 atau lebih baru."; bisa = false; }
+  else if (Notification.permission === "denied") { html = "Notifikasi diblokir. Buka pengaturan HP → Aplikasi/Chrome → Notifikasi, izinkan untuk aplikasi ini, lalu kembali ke sini."; bisa = false; }
+  else { const sub = await langgananSaatIni().catch(() => null); aktif = !!sub && Notification.permission === "granted" && LS.get("notifOn", false);
+    html = aktif ? "✅ Notifikasi aktif di HP ini." : "Notifikasi belum aktif di HP ini."; }
+  stt.textContent = html; on.hidden = !bisa || aktif; uji.hidden = off.hidden = !aktif;
+  hint.innerHTML = (bisa && !aktif && !LS.get("tutupNotifHint", 0)) ? `<div class="banner rw"><span>Aktifkan notifikasi supaya diingatkan jam 17.00 kalau masih ada helper yang belum dinilai.</span><span style="display:flex;gap:6px"><button class="btn" data-nf="1">Aktifkan</button><button class="btn ghost" data-nf-tutup="1" aria-label="Tutup">✕</button></span></div>` : "";
+}
+async function aktifkanNotif() {
+  const stt = $("nfStatus");
+  try {
+    const izin = await Notification.requestPermission();
+    if (izin !== "granted") { toast("Izin notifikasi tidak diberikan."); return renderNotif(); }
+    stt.textContent = "Mendaftarkan HP ini…";
+    const reg = await navigator.serviceWorker.ready;
+    let key = LS.get("vapid", ""); if (!key) { key = await api("vapidKey"); LS.set("vapid", key); }
+    let sub = await reg.pushManager.getSubscription();
+    if (!sub) sub = await reg.pushManager.subscribe({ userVisibleOnly: true, applicationServerKey: b64keU8(key) });
+    await api("langganan", { sub: sub.toJSON(), perangkat: (navigator.userAgentData && navigator.userAgentData.platform) || navigator.platform || "" });
+    LS.set("notifOn", true); toast("Notifikasi aktif. Coba ketuk “Kirim notifikasi uji”.");
+  } catch (e) { toast(e.offline ? "Butuh internet untuk mengaktifkan notifikasi." : "Gagal mengaktifkan notifikasi: " + e.message, 6000); }
+  renderNotif();
+}
+async function matikanNotif(diam) {
+  const sub = await langgananSaatIni().catch(() => null);
+  if (sub) { await api("hapusLangganan", { endpoint: sub.endpoint }).catch(() => {}); await sub.unsubscribe().catch(() => {}); }
+  LS.set("notifOn", false); if (!diam) { toast("Notifikasi dimatikan di HP ini."); renderNotif(); }
+}
+$("nfOn").onclick = aktifkanNotif;
+$("nfOff").onclick = () => matikanNotif(false);
+$("nfUji").onclick = async () => { const b = $("nfUji"); b.disabled = true; b.textContent = "Mengirim…";
+  try { const r = await api("ujiNotif"); toast(r.terkirim ? "Notifikasi uji dikirim. Tunggu beberapa detik…" : "Gagal mengirim: " + (r.gagal[0] && (r.gagal[0].kode || "") + " " + r.gagal[0].pesan), 6000); }
+  catch (e) { toast(e.message, 6000); } finally { b.disabled = false; b.textContent = "Kirim notifikasi uji"; } };
+document.addEventListener("click", e => {
+  if (e.target.closest("[data-nf]")) aktifkanNotif();
+  if (e.target.closest("[data-nf-tutup]")) { LS.set("tutupNotifHint", 1); renderNotif(); }
+});
 
 // ---------- riwayat ----------
 function bulanIni() { const d = new Date(); return new Date(d.getFullYear(), d.getMonth(), 1); }
@@ -566,6 +729,7 @@ if ("serviceWorker" in navigator && location.protocol !== "file:") {
     reg.addEventListener("updatefound", () => { const w = reg.installing; w && w.addEventListener("statechange", () => {
       if (w.state === "installed" && navigator.serviceWorker.controller) { toast("Versi baru aplikasi tersedia. Memuat ulang…", 2500); w.postMessage("skipWaiting"); } }); });
   }).catch(() => {});
+  navigator.serviceWorker.addEventListener("message", e => { if (e.data === "muat-ulang-pr" && sesi) { bukaTab("tNilai"); muatPR(); muatHari(); } });
   let reloaded = false;
   navigator.serviceWorker.addEventListener("controllerchange", () => { if (reloaded || !$("vForm").hidden || antrean.length && sinkronJalan) return; reloaded = true; location.reload(); });
 }
