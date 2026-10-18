@@ -1,7 +1,7 @@
 // Service worker: menyimpan tampilan aplikasi supaya tetap bisa dibuka tanpa internet,
 // dan menampilkan notifikasi pengingat penilaian.
 // Naikkan VERSI setiap kali file aplikasi diperbarui.
-const VERSI = 'kacab-v5';
+const VERSI = 'kacab-v6';
 const META = 'kc-meta'; // berisi sesi login untuk notifikasi; jangan dihapus saat update
 const FILES = ['./', 'index.html', 'manifest.webmanifest', 'icon-192.png', 'icon-512.png', 'icon-maskable.png', 'apple-touch-icon.png'];
 self.addEventListener('install', e => {

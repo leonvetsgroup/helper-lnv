@@ -115,6 +115,16 @@ nav.tabs button{position:relative}
 .pc .n{font-weight:800;font-size:15px;white-space:nowrap}.pc .n.ok{color:var(--ok-ink)}.pc .n.no{color:var(--bad-ink)}
 .pc .bar{height:5px;border-radius:9px;background:var(--line);margin-top:5px;overflow:hidden}.pc .bar i{display:block;height:100%;background:var(--accent)}
 .chips2{display:flex;flex-wrap:wrap;gap:6px;margin-top:6px}
+.rk-card{display:block;width:100%;text-align:left;background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:12px 14px;cursor:pointer;font:inherit;color:inherit}
+.rk-top{display:flex;align-items:center;gap:12px}
+.rk-no{flex:0 0 34px;height:34px;border-radius:50%;display:grid;place-items:center;font-weight:800;background:var(--na);font-size:15px}
+.rk-no.g1{background:#F7D774;color:#5A4300}.rk-no.g2{background:#D9DEE3;color:#33404A}.rk-no.g3{background:#E9B98F;color:#5A3010}
+.rk-main{flex:1;min-width:0}.rk-main .nm{font-weight:700}.rk-main .sub{font-size:12px;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.rk-pct{font-weight:800;font-size:20px;white-space:nowrap}
+.rk-bar{height:6px;border-radius:9px;background:var(--line);margin-top:8px;overflow:hidden}.rk-bar i{display:block;height:100%;background:var(--accent)}
+.rk-stat{display:flex;gap:6px;flex-wrap:wrap;margin-top:8px}.rk-stat span{font-size:12px;padding:3px 9px;border-radius:999px;background:var(--na)}
+.rk-stat .bad{background:var(--bad);color:var(--bad-ink)}.rk-stat .ok{background:var(--ok);color:var(--ok-ink)}
+.rk-det{margin-top:8px;display:none}.rk-card.buka .rk-det{display:block}
 .prday{background:var(--panel);border:1px solid var(--line);border-left:5px solid #D93025;border-radius:12px;padding:12px 14px;display:flex;gap:10px;align-items:center}
 .prday.today{border-left-color:var(--accent)}
 .prday .info{flex:1;min-width:0}
@@ -182,6 +192,13 @@ nav.tabs button{position:relative}
     <div id="rList"></div>
   </main>
 
+  <!-- tab peringkat (admin) -->
+  <main id="tPeringkat" class="wrap" hidden>
+    <div class="rw"><button class="btn ghost" id="pkPrev" aria-label="Bulan sebelumnya">‹</button><div class="center"><h2 id="pkJudul" style="margin:0"></h2><div class="small muted" id="pkSub"></div></div><button class="btn ghost" id="pkNext" aria-label="Bulan berikutnya">›</button></div>
+    <p class="small muted" style="margin:8px 0 0">Peringkat cabang berdasarkan <b>hari yang penilaiannya lengkap</b> (semua helper yang bertugas sudah dinilai). Hari ini belum dihitung. Ketuk cabang untuk melihat tanggal yang masih bolong.</p>
+    <div class="list" id="pkList"></div>
+  </main>
+
   <!-- tab akun -->
   <main id="tAkun" class="wrap" hidden>
     <div class="card"><b id="aNama"></b><div class="muted small" id="aInfo"></div></div>
@@ -214,6 +231,7 @@ nav.tabs button{position:relative}
   <nav class="tabs" role="tablist">
     <button role="tab" data-tab="tNilai" aria-selected="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg>Nilai hari ini<span class="badge" id="prBadge" hidden></span></button>
     <button role="tab" data-tab="tRiwayat" aria-selected="false"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 3"/></svg>Riwayat</button>
+    <button role="tab" data-tab="tPeringkat" aria-selected="false" id="tabPeringkat" hidden><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M8 21h8M12 17v4M7 4h10v5a5 5 0 0 1-10 0V4z"/><path d="M17 5h3v2a3 3 0 0 1-3 3M7 5H4v2a3 3 0 0 0 3 3"/></svg>Peringkat</button>
     <button role="tab" data-tab="tAkun" aria-selected="false"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="4"/><path d="M4 21a8 8 0 0 1 16 0"/></svg>Akun</button>
   </nav>
 </section>
@@ -258,7 +276,7 @@ nav.tabs button{position:relative}
 // ===================== PENGATURAN =====================
 // Alamat Apps Script (URL /exec dari Deploy > Manage deployments). Sama dengan link web admin.
 const API = "https://script.google.com/macros/s/AKfycbx0VfKovPWgOiXGgeHxzJ5J24QJ91EWrqptM0XhdR5Dy9ypvFawUxnOGOvqx15D7FTMLA/exec";
-const VERSI = "1.4 (18 Okt 2026)";
+const VERSI = "1.5 (18 Okt 2026)";
 // ======================================================
 const NILAI_DEF=[
  {k:"a",t:"A. Penampilan & kesiapan diri",items:[
@@ -331,7 +349,8 @@ function toast(msg, ms) { const t = $("toast"); t.textContent = msg; t.hidden = 
 function tampil(v) { ["vLogin", "vApp"].forEach(id => $(id).hidden = id !== v); }
 function bukaTab(id) {
   document.querySelectorAll("nav.tabs button").forEach(b => b.setAttribute("aria-selected", b.dataset.tab === id));
-  ["tNilai", "tRiwayat", "tAkun"].forEach(x => $(x).hidden = x !== id);
+  ["tNilai", "tRiwayat", "tPeringkat", "tAkun"].forEach(x => $(x).hidden = x !== id);
+  if (id === "tPeringkat") muatPeringkat();
   if (id === "tRiwayat") muatRiwayat();
   if (id === "tAkun") { renderAkun(); renderNotif(); }
   window.scrollTo(0, 0);
@@ -397,6 +416,7 @@ function mulaiApp() {
   const cabs = [...new Set((sesi.cabang || []).concat(sesi.akun.cabang ? [sesi.akun.cabang] : []))].sort();
   $("fCab").innerHTML = '<option value="">Pilih cabang…</option>' + cabs.map(c => `<option ${c === st.cabang ? "selected" : ""}>${esc(c)}</option>`).join("");
   $("fTgl").value = st.tanggal; $("fTgl").max = hariIni();
+  $("tabPeringkat").hidden = !isAdmin();
   bukaTab("tNilai"); renderSync(); muatHari(); sinkron(); tampilInstall(); muatPR(); renderNotif(); muatPantau();
   api("saya").then(r => { sesi.akun = r.akun; sesi.cabang = r.cabang; LS.set("sesi", sesi); }).catch(e => { if (e.sesi) sesiHabis(e.message); });
 }
@@ -642,6 +662,37 @@ function pilihTanggalPR(t, cab) {
   if (c && st.cabang !== c) { st.cabang = c; $("fCab").value = st.cabang; LS.set("cabang", st.cabang); }
   muatHari(); muatPantau(); renderPR(); window.scrollTo({ top: 0, behavior: "smooth" });
 }
+// ---------- peringkat cabang (khusus admin) ----------
+let pkBulan = null;
+async function muatPeringkat() {
+  if (!pkBulan) { const d = new Date(); pkBulan = new Date(d.getFullYear(), d.getMonth(), 1); }
+  const m = isoLokal(pkBulan), akhir = isoLokal(new Date(pkBulan.getFullYear(), pkBulan.getMonth() + 1, 0)), k = "pk_" + m;
+  $("pkJudul").textContent = `${BULAN[pkBulan.getMonth()]} ${pkBulan.getFullYear()}`;
+  const d0 = new Date(); $("pkNext").disabled = pkBulan.getFullYear() === d0.getFullYear() && pkBulan.getMonth() === d0.getMonth();
+  renderPeringkat(LS.get(k, null), "Memuat…");
+  try { const r = await api("peringkat", { mulai: m, sampai: akhir }); LS.set(k, r); if (k === "pk_" + isoLokal(pkBulan)) renderPeringkat(r); }
+  catch (e) { if (e.sesi) return sesiHabis(e.message); if (!LS.get(k, null)) renderPeringkat(null, e.offline ? "Butuh internet untuk memuat peringkat." : e.message); }
+}
+function renderPeringkat(r, pesan) {
+  if (!r) { $("pkSub").textContent = ""; $("pkList").innerHTML = `<p class="muted center">${esc(pesan || "")}</p>`; return; }
+  $("pkSub").textContent = r.cabang.length ? `dihitung ${tglPendek(r.mulai)} – ${tglPendek(r.sampai)}` : "";
+  if (!r.cabang.length) { $("pkList").innerHTML = `<p class="muted center">Belum ada hari yang bisa dihitung di bulan ini.</p>`; return; }
+  $("pkList").innerHTML = r.cabang.map((c, i) => `<div class="rk-card" data-rk="${esc(c.cabang)}" role="button" tabindex="0">
+    <div class="rk-top"><div class="rk-no ${i < 3 ? "g" + (i + 1) : ""}">${i + 1}</div>
+      <div class="rk-main"><div class="nm">${esc(c.cabang)}</div><div class="sub">${esc(c.kacab.join(", ") || "belum ada akun kacab")}</div></div>
+      <div class="rk-pct">${c.persen}%</div></div>
+    <div class="rk-bar"><i style="width:${c.persen}%"></i></div>
+    <div class="rk-stat"><span class="ok">${c.hariLengkap}/${c.hariTugas} hari lengkap</span>${c.bolong.length ? `<span class="bad">${c.bolong.length} tanggal bolong</span><span class="bad">${c.helperBelum} penilaian belum</span>` : `<span class="ok">tanpa PR 🎉</span>`}<span>${c.persenNilai}% penilaian terisi</span></div>
+    <div class="rk-det">${c.bolong.length ? `<div class="chips2">${c.bolong.map(b => `<button class="chip" data-pr="${esc(b.tanggal)}" data-cab="${esc(c.cabang)}" title="${esc(b.nama.join(", "))}">${esc(tglPendek(b.tanggal))} · ${b.belum}</button>`).join("")}</div><div class="small muted" style="margin-top:6px">Ketuk tanggal untuk membukanya.</div>` : '<div class="small muted">Semua hari sudah lengkap.</div>'}</div>
+  </div>`).join("");
+}
+$("pkList").addEventListener("click", e => {
+  const ch = e.target.closest("[data-pr]"); if (ch) { pilihTanggalPR(ch.dataset.pr, ch.dataset.cab); return; }
+  const c = e.target.closest("[data-rk]"); if (c) c.classList.toggle("buka");
+});
+$("pkPrev").onclick = () => { pkBulan = new Date(pkBulan.getFullYear(), pkBulan.getMonth() - 1, 1); muatPeringkat(); };
+$("pkNext").onclick = () => { pkBulan = new Date(pkBulan.getFullYear(), pkBulan.getMonth() + 1, 1); muatPeringkat(); };
+
 // ---------- pantauan semua cabang (khusus admin) ----------
 const isAdmin = () => !!(sesi && sesi.akun && sesi.akun.peran === "admin");
 async function muatPantau() {
