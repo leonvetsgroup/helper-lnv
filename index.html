@@ -258,7 +258,7 @@ nav.tabs button{position:relative}
 // ===================== PENGATURAN =====================
 // Alamat Apps Script (URL /exec dari Deploy > Manage deployments). Sama dengan link web admin.
 const API = "https://script.google.com/macros/s/AKfycbx0VfKovPWgOiXGgeHxzJ5J24QJ91EWrqptM0XhdR5Dy9ypvFawUxnOGOvqx15D7FTMLA/exec";
-const VERSI = "1.3 (16 Okt 2026)";
+const VERSI = "1.4 (18 Okt 2026)";
 // ======================================================
 const NILAI_DEF=[
  {k:"a",t:"A. Penampilan & kesiapan diri",items:[
@@ -437,11 +437,11 @@ function renderHari(pesan) {
     if (q) { cls = "pend"; sk = skorDari(q.p) + "%"; stat = '<span class="tag pend">menunggu dikirim</span>'; selesai++; }
     else if (saya && !qh) { cls = "done"; sk = saya.skor + "%"; stat = '<span class="tag done">sudah Anda nilai</span>'; selesai++; }
     else if (qh) stat = '<span class="tag pend">akan dihapus</span>';
-    if (lain.length) stat += ` · juga dinilai ${esc(lain.map(r => r.penilai).join(", "))}`;
+    else if (lain.length) { cls = "done"; sk = lain[0].skor + "%"; stat = `<span class="tag done">sudah dinilai ${esc(lain[0].penilai)}</span>`; selesai++; }
     const tr = h.tgl_masuk && (new Date(st.tanggal) - new Date(h.tgl_masuk)) / 864e5 <= 183;
     return `<button class="hcard ${cls}" data-h="${esc(h.id)}"><div class="info"><div class="nm">${esc(h.nama)}${h.rotasi ? `<span class="tag rot">↻ dari ${esc(h.penempatan || "–")}</span>` : ""}${tr ? '<span class="tag tr">Training</span>' : ""}</div><div class="sub">${stat}</div></div><div class="sk">${esc(sk) || "›"}</div></button>`;
   }).join("") || `<div class="card muted">Tidak ada helper yang dijadwalkan di ${esc(st.cabang)} pada ${esc(tglPendek(st.tanggal))}.</div>`;
-  $("progTxt").innerHTML = pesan ? esc(pesan) : `<b>${tglPanjang(st.tanggal)}</b> · ${hs.length ? `${selesai} dari ${hs.length} helper sudah Anda nilai` : "tidak ada jadwal"}`;
+  $("progTxt").innerHTML = pesan ? esc(pesan) : `<b>${tglPanjang(st.tanggal)}</b> · ${hs.length ? `${selesai} dari ${hs.length} helper sudah dinilai` : "tidak ada jadwal"}`;
   $("progBar").style.width = hs.length ? Math.round(selesai / hs.length * 100) + "%" : "0";
   $("absenBox").hidden = !d.tidakMasuk.length;
   $("absenList").innerHTML = d.tidakMasuk.map(x => `<span>${esc(x.nama)} · ${esc(x.status)}</span>`).join("");
@@ -459,14 +459,16 @@ function bukaForm(h, tanggal, cabang, rekamLama) {
   const d = st.data && st.data.tanggal === tanggal && st.data.cabang === cabang ? st.data : null;
   const q = antreanUntuk(h.id, tanggal);
   const saya = rekamLama || (d && d.nilai.find(r => r.helper_id === h.id && milikSaya(r)));
-  const awal = q ? q.p : (saya || {});
-  fCur = { h, tanggal, cabang, nilai: {}, cat: {}, saya: saya || null, antre: !!q };
+  const lainR = !saya && !q && d ? d.nilai.find(r => r.helper_id === h.id && !milikSaya(r)) : null;
+  const awal = q ? q.p : (saya || lainR || {});
+  fCur = { h, tanggal, cabang, nilai: {}, cat: {}, saya: saya || null, antre: !!q, baca: !!lainR };
   KEYS.forEach(k => { if (awal[k]) fCur.nilai[k] = awal[k]; });
   CAT_KEYS.forEach(k => { if (awal[k]) fCur.cat[k] = awal[k]; });
   $("fNama").textContent = h.nama_lengkap || h.nama;
   $("fSub").textContent = `${tglPanjang(tanggal)} · ${cabang}${(h.penempatan && h.penempatan !== cabang) ? " · rotasi dari " + h.penempatan : ""}`;
   const lain = d ? d.nilai.filter(r => r.helper_id === h.id && !milikSaya(r)) : [];
-  $("fInfo").textContent = (saya || q ? "Anda sedang mengubah penilaian yang sudah diisi. " : "") + (lain.length ? `Helper ini juga dinilai ${lain.map(r => r.penilai).join(", ")} hari ini.` : "");
+  $("fInfo").textContent = lainR ? `Helper ini sudah dinilai oleh ${lainR.penilai} pada tanggal ini (skor ${lainR.skor}%). Hanya bisa dilihat; satu helper cukup dinilai satu kali per hari.`
+    : (saya || q ? "Anda sedang mengubah penilaian yang sudah Anda isi. " : "");
   $("fItems").innerHTML = NILAI_DEF.map(s => `<div class="sec"><h3>${esc(s.t)}</h3>${s.items.map(([k, q, opts, note]) => `
     <div class="item" id="it-${k}"><div class="q">${esc(q)}${note ? `<small>${esc(note)}</small>` : ""}</div>
       ${["A","B","C"].map((v, i) => `<button type="button" class="opt ${v}" data-k="${k}" data-v="${v}" aria-pressed="false"><b>${v}</b><span>${esc(opts[i])}</span></button>`).join("")}
@@ -475,9 +477,12 @@ function bukaForm(h, tanggal, cabang, rekamLama) {
     <button type="button" class="catbtn" data-cat="catatan_${s.k}">${fCur.cat["catatan_" + s.k] ? "Catatan:" : "＋ Tambah catatan bagian ini"}</button>
     <textarea id="cat-${s.k}" rows="2" ${fCur.cat["catatan_" + s.k] ? "" : "hidden"} style="width:100%;font-size:16px;border:1px solid var(--line);border-radius:10px;padding:10px;background:var(--panel)">${esc(fCur.cat["catatan_" + s.k] || "")}</textarea></div>`).join("");
   $("fCatUmum").value = fCur.cat.catatan_umum || "";
-  $("fHapusBox").hidden = !(saya || q); $("fHapusSt").value = "";
+  $("fHapusBox").hidden = !(saya || q) || fCur.baca; $("fHapusSt").value = "";
+  $("fCatUmum").readOnly = fCur.baca;
   $("fAlert").hidden = true;
-  renderPilihan(); $("vForm").hidden = false; $("vForm").scrollTop = 0; document.body.style.overflow = "hidden";
+  renderPilihan(); $("fSimpan").hidden = fCur.baca; $("fBatal").textContent = fCur.baca ? "Tutup" : "Batal";
+  if (fCur.baca) document.querySelectorAll("#fItems .catbtn").forEach(b => b.hidden = true);
+  $("vForm").hidden = false; $("vForm").scrollTop = 0; document.body.style.overflow = "hidden";
   history.pushState({ form: 1 }, "");
 }
 function tutupForm() { $("vForm").hidden = true; document.body.style.overflow = ""; fCur = null; }
@@ -492,6 +497,7 @@ function renderPilihan() {
 }
 $("fItems").addEventListener("click", e => {
   const o = e.target.closest(".opt");
+  if (o && fCur && fCur.baca) { toast("Penilaian ini milik kacab lain dan hanya bisa dilihat."); return; }
   if (o) { fCur.nilai[o.dataset.k] = o.dataset.v; $("it-" + o.dataset.k).classList.remove("miss"); renderPilihan(); if (!$("fAlert").hidden) tampilKurang(false); return; }
   const c = e.target.closest(".catbtn"); if (c) { const t = $("cat-" + c.dataset.cat.slice(8)); t.hidden = false; c.textContent = "Catatan:"; t.focus(); }
 });
@@ -508,6 +514,8 @@ function tampilKurang(gulir) {
 }
 $("fAlert").addEventListener("click", e => { const b = e.target.closest("[data-ke]"); if (b) $("it-" + b.dataset.ke).scrollIntoView({ behavior: "smooth", block: "center" }); });
 $("fSimpan").onclick = () => {
+  if (fCur.baca) return;
+  if (fCur.tanggal > hariIni()) { toast("Tidak bisa menilai tanggal yang belum terjadi."); return; }
   if (tampilKurang(true).length) return;
   const p = { helper_id: fCur.h.id, tanggal: fCur.tanggal, cabang: fCur.cabang };
   KEYS.forEach(k => p[k] = fCur.nilai[k]);
