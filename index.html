@@ -132,6 +132,23 @@ nav.tabs button{position:relative}
 .gf-sub{font-size:12px;color:var(--muted);margin-top:4px}.gf-det{display:none;margin-top:10px}.gf-row.buka .gf-det{display:block}
 .gf-bag{display:grid;grid-template-columns:minmax(0,1fr) 46px;gap:4px 8px;align-items:center;font-size:12px;margin-bottom:8px}.gf-bag .gf-bar{margin:0;height:8px}
 .gf-svg{display:block;width:100%;height:auto}.gf-svg text{font:11px system-ui,sans-serif;fill:var(--muted)}
+.tg-wrap{max-width:1180px}
+.tg-bar{display:flex;gap:8px;flex-wrap:wrap;margin-top:10px}.tg-bar .btn{min-height:40px;padding:8px 12px;font-size:14px}
+.tg-sec{margin-top:12px;background:var(--panel);border:1px solid var(--line);border-radius:12px;overflow:hidden}
+.tg-head{padding:8px 12px;font-weight:800;letter-spacing:.03em}
+.tg-scroll{overflow-x:auto;-webkit-overflow-scrolling:touch}
+.tg-tab{border-collapse:collapse;width:100%;font-size:13px}
+.tg-tab th,.tg-tab td{border-top:1px solid var(--line);border-left:1px solid var(--line);padding:6px 8px;text-align:left;vertical-align:top;min-width:96px}
+.tg-tab thead th{font-size:12px;background:var(--na);white-space:nowrap}.tg-tab thead th small{display:block;font-weight:500;color:var(--muted)}
+.tg-tab .tg-l{position:sticky;left:0;z-index:1;background:var(--panel);min-width:150px;max-width:190px;font-weight:600;font-size:12px;border-left:0}
+.tg-tab thead .tg-l{background:var(--na)}
+.tg-tab .now{background:var(--accent-soft)}
+.tg-tab td.auto{font-style:italic;color:var(--muted)}
+.tg-tab td.ed{cursor:pointer}.tg-tab td.ed:active{background:var(--na)}
+.te-h{display:inline-flex;gap:4px;align-items:center;border:1px solid var(--line);border-radius:999px;padding:6px 10px;font-size:13px;color:var(--ink)}
+.chip.te-c.on{background:var(--accent);color:var(--accent-ink);border-color:var(--accent)}.chip.te-c small{opacity:.7;font-weight:500}
+.ts-row{display:flex;gap:6px;align-items:center}.ts-row input{flex:1;min-width:0;font-size:15px;padding:9px 10px;border:1px solid var(--line);border-radius:10px;background:var(--panel);color:var(--ink)}
+.ts-row .btn{min-height:40px;padding:6px 11px}
 .rk-det{margin-top:8px;display:none}.rk-card.buka .rk-det{display:block}
 .prday{background:var(--panel);border:1px solid var(--line);border-left:5px solid #D93025;border-radius:12px;padding:12px 14px;display:flex;gap:10px;align-items:center}
 .prday.today{border-left-color:var(--accent)}
@@ -219,6 +236,19 @@ nav.tabs button{position:relative}
     <div id="gfIsi"></div>
   </main>
 
+  <!-- tab jadwal tugas rinci -->
+  <main id="tTugas" class="wrap tg-wrap" hidden>
+    <div class="rw"><button class="btn ghost" id="tgPrev" aria-label="Minggu sebelumnya">‹</button><div class="center"><h2 id="tgJudul" style="margin:0;font-size:18px"></h2><div class="small muted" id="tgSub"></div></div><button class="btn ghost" id="tgNext" aria-label="Minggu berikutnya">›</button></div>
+    <label class="field" id="tgCabWrap" hidden style="margin-top:10px">Tampilkan<select id="tgCab"></select></label>
+    <div class="tg-bar">
+      <button class="btn" id="tgUnduh">⬇ Gambar</button>
+      <button class="btn ghost" id="tgExcel">⬇ Excel</button>
+      <button class="btn ghost" id="tgIni">Minggu ini</button>
+      <span id="tgAdmin" style="display:none"><button class="btn ghost" id="tgSalin">Salin minggu lalu</button><button class="btn ghost" id="tgAtur">Atur baris tugas</button></span>
+    </div>
+    <div id="tgIsi"></div>
+  </main>
+
   <!-- tab akun -->
   <main id="tAkun" class="wrap" hidden>
     <div class="card"><b id="aNama"></b><div class="muted small" id="aInfo"></div></div>
@@ -252,6 +282,7 @@ nav.tabs button{position:relative}
     <button role="tab" data-tab="tNilai" aria-selected="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg>Nilai hari ini<span class="badge" id="prBadge" hidden></span></button>
     <button role="tab" data-tab="tRiwayat" aria-selected="false"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 3"/></svg>Riwayat</button>
     <button role="tab" data-tab="tGrafik" aria-selected="false"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 3v18h18"/><path d="M7 15l4-4 3 3 6-7"/></svg>Grafik</button>
+    <button role="tab" data-tab="tTugas" aria-selected="false"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="17" rx="2"/><path d="M3 9h18M8 2v4M16 2v4M7 13h4M7 17h7"/></svg>Tugas</button>
     <button role="tab" data-tab="tPeringkat" aria-selected="false" id="tabPeringkat" hidden><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M8 21h8M12 17v4M7 4h10v5a5 5 0 0 1-10 0V4z"/><path d="M17 5h3v2a3 3 0 0 1-3 3M7 5H4v2a3 3 0 0 0 3 3"/></svg>Peringkat</button>
     <button role="tab" data-tab="tAkun" aria-selected="false"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="4"/><path d="M4 21a8 8 0 0 1 16 0"/></svg>Akun</button>
   </nav>
@@ -292,12 +323,38 @@ nav.tabs button{position:relative}
     <p class="small muted" style="margin-top:12px">Daftar ini mengikuti jadwal penempatan dari admin, 14 hari terakhir. Kalau helper ternyata libur/sakit di tanggal itu, beri tahu admin supaya jadwalnya diperbaiki, atau buka penilaiannya dan pilih tandai libur.</p></div>
 </section>
 
+<section id="vTgEdit" class="sheet" hidden>
+  <header class="top"><div class="row">
+    <div style="min-width:0"><b id="teJudul"></b><small id="teSub"></small></div>
+    <button class="btn" id="teTutup" style="background:rgba(255,255,255,.2);color:inherit;min-height:36px;padding:6px 14px">Tutup</button>
+  </div></header>
+  <div class="wrap" style="display:grid;gap:12px">
+    <label class="field">Nama yang bertugas (pisahkan dengan koma)<input id="teTeks" autocomplete="off"></label>
+    <div id="teChip" style="display:grid;gap:6px"></div>
+    <div><div class="small muted" style="margin-bottom:6px">Simpan juga untuk hari:</div><div id="teHari" style="display:flex;gap:6px;flex-wrap:wrap"></div></div>
+    <div style="display:flex;gap:8px"><button class="btn ghost" id="teKosong">Kosongkan</button><button class="btn" id="teSimpan" style="flex:1">Simpan</button></div>
+  </div>
+</section>
+
+<section id="vTgSlot" class="sheet" hidden>
+  <header class="top"><div class="row">
+    <div><b>Atur baris tugas</b><small>Nama shift / tugas per cabang</small></div>
+    <button class="btn" id="tsTutup" style="background:rgba(255,255,255,.2);color:inherit;min-height:36px;padding:6px 14px">Tutup</button>
+  </div></header>
+  <div class="wrap" style="display:grid;gap:10px">
+    <label class="field">Cabang / bagian<select id="tsCab"></select></label>
+    <div id="tsList" style="display:grid;gap:6px"></div>
+    <div class="ts-row"><input id="tsBaru" placeholder="mis. Bekasi Siang 13.00-20.00 (rajal)" aria-label="Baris tugas baru"><button class="btn" id="tsTambah">+ Tambah</button></div>
+    <p class="small muted">Perubahan nama langsung tersimpan saat kolom ditinggalkan. Baris yang dihapus tidak tampil lagi di jadwal.</p>
+  </div>
+</section>
+
 <div class="toast" id="toast" hidden></div>
 <script>
 // ===================== PENGATURAN =====================
 // Alamat Apps Script (URL /exec dari Deploy > Manage deployments). Sama dengan link web admin.
 const API = "https://script.google.com/macros/s/AKfycbx0VfKovPWgOiXGgeHxzJ5J24QJ91EWrqptM0XhdR5Dy9ypvFawUxnOGOvqx15D7FTMLA/exec";
-const VERSI = "1.7 (20 Okt 2026)";
+const VERSI = "1.8 (25 Okt 2026)";
 // ======================================================
 const NILAI_DEF=[
  {k:"a",t:"A. Penampilan & kesiapan diri",items:[
@@ -370,7 +427,8 @@ function toast(msg, ms) { const t = $("toast"); t.textContent = msg; t.hidden = 
 function tampil(v) { ["vLogin", "vApp"].forEach(id => $(id).hidden = id !== v); }
 function bukaTab(id) {
   document.querySelectorAll("nav.tabs button").forEach(b => b.setAttribute("aria-selected", b.dataset.tab === id));
-  ["tNilai", "tRiwayat", "tGrafik", "tPeringkat", "tAkun"].forEach(x => $(x).hidden = x !== id);
+  ["tNilai", "tRiwayat", "tGrafik", "tTugas", "tPeringkat", "tAkun"].forEach(x => $(x).hidden = x !== id);
+  if (id === "tTugas") muatTugas();
   if (id === "tGrafik") muatGrafik();
   if (id === "tPeringkat") muatPeringkat();
   if (id === "tRiwayat") muatRiwayat();
@@ -741,6 +799,176 @@ $("gfIsi").addEventListener("click", e => { const c = e.target.closest("[data-gf
 $("gfCab").onchange = () => { gfCab = $("gfCab").value; muatGrafik(); };
 $("gfPrev").onclick = () => { gfBulan = new Date(gfBulan.getFullYear(), gfBulan.getMonth() - 1, 1); muatGrafik(); };
 $("gfNext").onclick = () => { gfBulan = new Date(gfBulan.getFullYear(), gfBulan.getMonth() + 1, 1); muatGrafik(); };
+
+// ---------- jadwal tugas rinci (per shift / tugas) ----------
+// Admin mengisi semua cabang; kepala cabang hanya melihat cabangnya. Bisa diunduh jadi gambar & Excel.
+const TG_KHUSUS = ["SPV", "LIBUR", "IJIN / SAKIT", "CUTI"];
+const TG_WARNA = { "Bekasi": "#FFD966", "Pondok Bambu": "#A9D08E", "Jagakarsa": "#C9C9C9", "Depok": "#D9E1F2", "Pondok Aren": "#F4B183", "BSD": "#EDEDED", "Pesanggrahan": "#92D050",
+  "Tangerang": "#00B0F0", "Solo": "#F8CBAD", "Jogja": "#A6A6A6", "Bandung": "#C6E0B4", "Cibinong": "#00B050", "SPV": "#4472C4", "LIBUR": "#FF0000", "IJIN / SAKIT": "#4472C4", "CUTI": "#FF66CC" };
+const TG_PUTIH = ["SPV", "IJIN / SAKIT"];
+const TG_HARI = ["Senin", "Selasa", "Rabu", "Kamis", "Jumat", "Sabtu", "Minggu"];
+const tgWarna = c => TG_WARNA[c] || "#D9D9D9", tgTinta = c => TG_PUTIH.includes(c) ? "#FFFFFF" : "#111111";
+const tgJudulCab = c => c === "Jogja" ? "YOGYAKARTA" : c.toUpperCase();
+let tgSenin = null, tgData = null, tgCab = "", tgEdit = null;
+const seninDari = d => { const x = new Date(d.getFullYear(), d.getMonth(), d.getDate()); x.setDate(x.getDate() - (x.getDay() + 6) % 7); return x; };
+const tgRentang = hari => { const a = new Date(hari[0] + "T00:00:00"), b = new Date(hari[6] + "T00:00:00");
+  return `${a.getDate()} ${BULAN[a.getMonth()]}${a.getFullYear() !== b.getFullYear() ? " " + a.getFullYear() : ""} – ${b.getDate()} ${BULAN[b.getMonth()]} ${b.getFullYear()}`; };
+async function muatTugas() {
+  if (!tgSenin) tgSenin = seninDari(new Date());
+  if (!isAdmin()) tgCab = "";
+  const m = isoLokal(tgSenin), k = "tg_" + m;
+  const akhir = new Date(tgSenin); akhir.setDate(akhir.getDate() + 6);
+  $("tgJudul").textContent = tgRentang([m, 0, 0, 0, 0, 0, isoLokal(akhir)]);
+  $("tgAdmin").style.display = isAdmin() ? "contents" : "none"; $("tgCabWrap").hidden = !isAdmin();
+  renderTugas(LS.get(k, null), "Memuat…");
+  try { const r = await api("tugas", { mulai: m }); LS.set(k, r); if (k === "tg_" + isoLokal(tgSenin)) renderTugas(r); }
+  catch (e) { if (e.sesi) return sesiHabis(e.message); if (!LS.get(k, null)) renderTugas(null, e.offline ? "Butuh internet untuk memuat jadwal tugas." : e.message); }
+}
+// nilai yang tampil: isian manual, atau (untuk Libur/Ijin/Cuti) otomatis dari jadwal penempatan
+function tgNilai(r, s, t) { const v = (r.isi[s.id] || {})[t]; if (v) return { v, auto: false }; const o = (r.otomatis || {})[s.cabang]; return o && o[t] ? { v: o[t], auto: true } : { v: "", auto: false }; }
+function tgBagian(r) { const cabs = tgCab ? r.cabang.filter(c => c === tgCab) : r.cabang; return cabs.map(c => ({ c, slot: r.slot.filter(s => s.cabang === c), khusus: TG_KHUSUS.includes(c) })); }
+function renderTugas(r, pesan) {
+  tgData = r;
+  if (r && isAdmin()) $("tgCab").innerHTML = '<option value="">Semua cabang</option>' + r.cabang.map(c => `<option ${c === tgCab ? "selected" : ""}>${esc(c)}</option>`).join("");
+  $("tgSub").textContent = isAdmin() ? (tgCab || "Semua cabang") : (sesi.akun.cabang || "");
+  $("tgUnduh").disabled = $("tgExcel").disabled = !r;
+  if (!r) { $("tgIsi").innerHTML = `<p class="muted center" style="margin-top:16px">${esc(pesan || "")}</p>`; return; }
+  const hi = hariIni(), bag = tgBagian(r);
+  if (!bag.length) { $("tgIsi").innerHTML = `<p class="muted center" style="margin-top:16px">Belum ada baris tugas untuk cabang ini.${isAdmin() ? " Tambahkan lewat “Atur baris tugas”." : " Hubungi admin."}</p>`; return; }
+  const kepala = `<tr><th class="tg-l"></th>${r.hari.map((t, i) => `<th class="${t === hi ? "now" : ""}">${TG_HARI[i]}<small>${tglPendek(t)}</small></th>`).join("")}</tr>`;
+  $("tgIsi").innerHTML = bag.map(b => `<div class="tg-sec"><div class="tg-head" style="background:${tgWarna(b.c)};color:${tgTinta(b.c)}">${esc(tgJudulCab(b.c))}</div>
+    <div class="tg-scroll"><table class="tg-tab"><thead>${kepala}</thead><tbody>${b.slot.map(s => `<tr><th class="tg-l">${esc(s.nama)}</th>${r.hari.map(t => { const n = tgNilai(r, s, t);
+      return `<td class="${t === hi ? "now " : ""}${n.auto ? "auto" : ""}${isAdmin() ? " ed" : ""}" ${isAdmin() ? `data-tg="${esc(s.id)}|${t}" role="button" tabindex="0"` : ""}>${n.v ? esc(n.v) : '<span class="muted">–</span>'}</td>`; }).join("")}</tr>`).join("")}</tbody></table></div></div>`).join("") +
+    `<p class="small muted" style="margin-top:10px">${isAdmin() ? "Ketuk kotak untuk mengisi nama. " : ""}Baris Libur / Ijin-Sakit / Cuti yang belum diisi otomatis mengikuti jadwal penempatan (tulisan miring).</p>`;
+}
+$("tgPrev").onclick = () => { tgSenin.setDate(tgSenin.getDate() - 7); tgSenin = new Date(tgSenin); muatTugas(); };
+$("tgNext").onclick = () => { tgSenin.setDate(tgSenin.getDate() + 7); tgSenin = new Date(tgSenin); muatTugas(); };
+$("tgIni").onclick = () => { tgSenin = seninDari(new Date()); muatTugas(); };
+$("tgCab").onchange = () => { tgCab = $("tgCab").value; renderTugas(tgData); };
+// ----- editor isi kotak (admin) -----
+function bukaTgEdit(slotId, t) {
+  const r = tgData, s = r && r.slot.find(x => x.id === slotId); if (!s) return;
+  tgEdit = { s, t }; const n = tgNilai(r, s, t), i = r.hari.indexOf(t);
+  $("teJudul").textContent = s.nama; $("teSub").textContent = `${TG_HARI[i]}, ${tglPendek(t)} · ${s.cabang}`;
+  $("teTeks").value = n.auto ? "" : n.v; $("teTeks").placeholder = n.auto ? "Otomatis: " + n.v : "mis. Fikri, Singgih";
+  $("teHari").innerHTML = r.hari.map((d, k) => `<label class="te-h"><input type="checkbox" value="${d}" ${k === i ? "checked" : ""}>${TG_HARI[k].slice(0, 3)}</label>`).join("");
+  renderTeChip();
+  $("vTgEdit").hidden = false; document.body.style.overflow = "hidden"; history.pushState({ tg: 1 }, "");
+}
+const tgTc = n => String(n || "").replace(/\([^)]*\)|[^\s(]+/g, w => w[0] === "(" ? w : w[0].toUpperCase() + w.slice(1).toLowerCase());
+const teNama = () => $("teTeks").value.split(",").map(x => x.trim()).filter(Boolean);
+function renderTeChip() {
+  const r = tgData, s = tgEdit.s, pilih = new Set(teNama().map(x => x.toLowerCase()));
+  const sini = r.helper.filter(h => h.cabang === s.cabang), lain = r.helper.filter(h => h.cabang !== s.cabang);
+  const chip = h => `<button type="button" class="chip te-c${pilih.has(tgTc(h.nama).toLowerCase()) ? " on" : ""}" data-nm="${esc(tgTc(h.nama))}">${esc(tgTc(h.nama))}${h.cabang !== s.cabang && !TG_KHUSUS.includes(s.cabang) ? `<small> ${esc(h.cabang)}</small>` : ""}</button>`;
+  $("teChip").innerHTML = (sini.length ? `<div class="small muted">Helper ${esc(s.cabang)}</div><div class="chips2">${sini.map(chip).join("")}</div>` : "") +
+    `<details ${sini.length ? "" : "open"}><summary class="small muted">${sini.length ? "Helper cabang lain" : "Semua helper"}</summary><div class="chips2" style="margin-top:6px">${lain.map(chip).join("")}</div></details>`;
+}
+$("teChip").addEventListener("click", e => { const b = e.target.closest("[data-nm]"); if (!b) return;
+  const nm = b.dataset.nm, l = teNama(), i = l.findIndex(x => x.toLowerCase() === nm.toLowerCase());
+  if (i >= 0) l.splice(i, 1); else l.push(nm); $("teTeks").value = l.join(", "); renderTeChip(); });
+$("teTeks").oninput = () => renderTeChip();
+function tutupTgEdit() { $("vTgEdit").hidden = true; document.body.style.overflow = ""; tgEdit = null; }
+$("teTutup").onclick = () => history.back();
+$("teKosong").onclick = () => { $("teTeks").value = ""; renderTeChip(); };
+$("teSimpan").onclick = async () => {
+  if (!tgEdit) return; const tgl = [...document.querySelectorAll("#teHari input:checked")].map(x => x.value);
+  if (!tgl.length) { toast("Pilih minimal satu hari."); return; }
+  const b = $("teSimpan"); b.disabled = true; const isi = teNama().join(", "), s = tgEdit.s;
+  try { await api("simpanTugas", { slot_id: s.id, tanggal: tgl, isi });
+    tgl.forEach(t => { const o = (tgData.isi[s.id] = tgData.isi[s.id] || {}); if (isi) o[t] = isi; else delete o[t]; });
+    LS.set("tg_" + tgData.mulai, tgData); renderTugas(tgData); history.back(); toast(`Tersimpan untuk ${tgl.length} hari.`); }
+  catch (e) { if (e.sesi) return sesiHabis(e.message); toast(e.offline ? "Butuh internet untuk menyimpan jadwal tugas." : e.message); }
+  finally { b.disabled = false; }
+};
+$("tgIsi").addEventListener("click", e => { const c = e.target.closest("[data-tg]"); if (!c || !isAdmin()) return; const [id, t] = c.dataset.tg.split("|"); bukaTgEdit(id, t); });
+$("tgSalin").onclick = async () => {
+  const dari = new Date(tgSenin); dari.setDate(dari.getDate() - 7);
+  if (!confirm(`Salin semua isi jadwal tugas minggu ${tgRentang([isoLokal(dari), 0, 0, 0, 0, 0, isoLokal(new Date(dari.getTime() + 6 * 864e5))])} ke minggu ini? Isi minggu ini akan ditimpa.`)) return;
+  try { const n = await api("salinTugas", { dari: isoLokal(dari), ke: isoLokal(tgSenin) }, 60000); toast(`${n} kotak disalin dari minggu lalu.`); muatTugas(); }
+  catch (e) { if (e.sesi) return sesiHabis(e.message); toast(e.offline ? "Butuh internet." : e.message); }
+};
+// ----- atur baris tugas (admin) -----
+let tsCab = "";
+function bukaTgSlot() { if (!tgData) return; tsCab = tgCab || tgData.cabang[0] || ""; renderTgSlot(); $("vTgSlot").hidden = false; document.body.style.overflow = "hidden"; history.pushState({ tg: 2 }, ""); }
+function tutupTgSlot() { $("vTgSlot").hidden = true; document.body.style.overflow = ""; }
+function renderTgSlot() {
+  const r = tgData, cabs = [...new Set(r.cabang.concat((sesi.cabang || []).filter(c => c)))];
+  $("tsCab").innerHTML = cabs.map(c => `<option ${c === tsCab ? "selected" : ""}>${esc(c)}</option>`).join("");
+  const sl = r.slot.filter(s => s.cabang === tsCab);
+  $("tsList").innerHTML = sl.length ? sl.map((s, i) => `<div class="ts-row" data-ts="${esc(s.id)}"><input value="${esc(s.nama)}" aria-label="Nama tugas"><button type="button" class="btn ghost" data-ts-a="-1" ${i ? "" : "disabled"} aria-label="Naik">↑</button><button type="button" class="btn ghost" data-ts-a="1" ${i < sl.length - 1 ? "" : "disabled"} aria-label="Turun">↓</button><button type="button" class="btn danger" data-ts-x aria-label="Hapus">✕</button></div>`).join("") : '<p class="small muted">Belum ada baris untuk cabang ini.</p>';
+}
+async function tsJalankan(fn, args, pesan) {
+  try { await api(fn, args); const r = await api("tugas", { mulai: tgData.mulai }); LS.set("tg_" + r.mulai, r); tgData = r; renderTgSlot(); renderTugas(r); if (pesan) toast(pesan); }
+  catch (e) { if (e.sesi) return sesiHabis(e.message); toast(e.offline ? "Butuh internet." : e.message); }
+}
+$("tsCab").onchange = () => { tsCab = $("tsCab").value; renderTgSlot(); };
+$("tsList").addEventListener("click", e => { const row = e.target.closest("[data-ts]"); if (!row) return; const id = row.dataset.ts;
+  const a = e.target.closest("[data-ts-a]"); if (a) return tsJalankan("geserSlot", { id, arah: +a.dataset.tsA });
+  if (e.target.closest("[data-ts-x]")) { const s = tgData.slot.find(x => x.id === id); if (confirm(`Hapus baris "${s ? s.nama : ""}"? Isi jadwal di baris ini tidak ditampilkan lagi.`)) tsJalankan("hapusSlot", { id }, "Baris dihapus."); } });
+$("tsList").addEventListener("change", e => { const row = e.target.closest("[data-ts]"); if (!row || e.target.tagName !== "INPUT") return; const v = e.target.value.trim(); if (!v) return;
+  tsJalankan("simpanSlot", { slot: { id: row.dataset.ts, nama: v, cabang: tsCab } }, "Nama tugas disimpan."); });
+$("tsTambah").onclick = () => { const v = $("tsBaru").value.trim(); if (!v) { $("tsBaru").focus(); return; } $("tsBaru").value = ""; tsJalankan("simpanSlot", { slot: { nama: v, cabang: tsCab } }, "Baris ditambahkan."); };
+$("tgAtur").onclick = bukaTgSlot;
+$("tsTutup").onclick = () => history.back();
+window.addEventListener("popstate", () => { if (!$("vTgEdit").hidden) tutupTgEdit(); if (!$("vTgSlot").hidden) tutupTgSlot(); });
+// ----- unduh gambar -----
+function gambarTugas(r) {
+  const bag = tgBagian(r), S = 1.25, L = 470, D = 215, RH = 32, GAP = 14, W = L + 7 * D;
+  let H = RH * 2 + 4; bag.forEach(b => H += (b.khusus ? 0 : RH) + b.slot.length * RH + (b.khusus ? 2 : GAP));
+  const cv = document.createElement("canvas"); cv.width = Math.round(W * S); cv.height = Math.round(H * S);
+  const g = cv.getContext("2d"); g.scale(S, S); g.fillStyle = "#fff"; g.fillRect(0, 0, W, H);
+  const F = (w, z) => `${w} ${z}px Arial,"Segoe UI",Roboto,sans-serif`;
+  const kotak = (x, y, w, h, bg) => { g.fillStyle = bg; g.fillRect(x, y, w, h); g.strokeStyle = "#222"; g.lineWidth = 1; g.strokeRect(x + .5, y + .5, w, h); };
+  const tulis = (t, x, y, w, h, o) => { o = o || {}; t = String(t || ""); let z = o.z || 15; g.font = F(o.w || "bold", z);
+    while (z > 10 && g.measureText(t).width > w - 10) { z--; g.font = F(o.w || "bold", z); }
+    if (g.measureText(t).width > w - 10) { while (t.length && g.measureText(t + "…").width > w - 10) t = t.slice(0, -1); t += "…"; }
+    g.fillStyle = o.c || "#111"; g.textAlign = o.a || "left"; g.textBaseline = "middle"; g.fillText(t, o.a === "center" ? x + w / 2 : x + 5, y + h / 2 + 1); g.textAlign = "left"; };
+  kotak(0, 0, L, RH * 2, "#FFFF00"); tulis(tgRentang(r.hari), 0, 0, L, RH * 2, { a: "center", z: 17 });
+  r.hari.forEach((t, i) => { const x = L + i * D; kotak(x, 0, D, RH, "#F4B084"); tulis(+t.slice(8), x, 0, D, RH, { a: "center" }); kotak(x, RH, D, RH, "#9BC2E6"); tulis(TG_HARI[i], x, RH, D, RH, { a: "center" }); });
+  let y = RH * 2 + 4;
+  bag.forEach(b => {
+    if (!b.khusus) { kotak(0, y, L, RH, tgWarna(b.c)); tulis(tgJudulCab(b.c), 0, y, L, RH, { c: tgTinta(b.c), z: 16 }); r.hari.forEach((t, i) => kotak(L + i * D, y, D, RH, "#FFF2CC")); y += RH; }
+    b.slot.forEach(s => { kotak(0, y, L, RH, tgWarna(b.c)); tulis(s.nama, 0, y, L, RH, { c: tgTinta(b.c), a: b.khusus ? "center" : "left" });
+      r.hari.forEach((t, i) => { const n = tgNilai(r, s, t); kotak(L + i * D, y, D, RH, "#FFF2CC"); tulis(n.v, L + i * D, y, D, RH); }); y += RH; });
+    y += b.khusus ? 2 : GAP;
+  });
+  return cv;
+}
+const tgNamaFile = (r, ext) => { const a = new Date(r.hari[0] + "T00:00:00"), b = new Date(r.hari[6] + "T00:00:00");
+  return `Jadwal-tugas-${a.getDate()}${BULAN[a.getMonth()].slice(0, 3)}-${b.getDate()}${BULAN[b.getMonth()].slice(0, 3)}-${b.getFullYear()}${tgCab ? "-" + tgCab.replace(/[^\w]+/g, "") : (isAdmin() ? "" : "-" + String(sesi.akun.cabang || "").replace(/[^\w]+/g, ""))}.${ext}`; };
+async function tgSerahkan(f, pesan) {
+  if (iOS && bisaBagi()) { toast("Pilih \"Simpan Gambar\" / \"Simpan ke File\"."); return bagiPeringkat(f); }
+  const u = URL.createObjectURL(f), a = document.createElement("a"); a.href = u; a.download = f.name; document.body.appendChild(a); a.click(); a.remove(); setTimeout(() => URL.revokeObjectURL(u), 4000); toast(pesan);
+}
+$("tgUnduh").onclick = async () => { if (!tgData) return; const cv = gambarTugas(tgData); const blob = await new Promise(res => cv.toBlob(res, "image/png"));
+  tgSerahkan(new File([blob], tgNamaFile(tgData, "png"), { type: "image/png" }), "Gambar jadwal tugas diunduh."); };
+// ----- unduh Excel (bisa diubah di Excel / Google Sheets) -----
+let _exj = null;
+function muatExcelJS() { if (window.ExcelJS) return Promise.resolve(); if (_exj) return _exj;
+  _exj = new Promise((res, rej) => { const sc = document.createElement("script"); sc.src = "https://cdnjs.cloudflare.com/ajax/libs/exceljs/4.4.0/exceljs.min.js"; sc.onload = res; sc.onerror = () => { _exj = null; rej(); }; document.head.appendChild(sc); }); return _exj; }
+$("tgExcel").onclick = async () => {
+  if (!tgData) return; const r = tgData, b0 = $("tgExcel"); b0.disabled = true;
+  try { await muatExcelJS(); } catch (_) { b0.disabled = false; toast("Butuh internet untuk membuat file Excel."); return; }
+  try {
+    const wb = new ExcelJS.Workbook(), ws = wb.addWorksheet("Jadwal tugas", { views: [{ state: "frozen", xSplit: 1, ySplit: 2 }] });
+    ws.columns = [{ width: 52 }].concat(r.hari.map(() => ({ width: 26 })));
+    const isiW = (c, warna, tinta, bold, rata) => { c.fill = { type: "pattern", pattern: "solid", fgColor: { argb: "FF" + warna.slice(1) } }; c.font = { name: "Arial", size: 11, bold: bold !== false, color: { argb: "FF" + (tinta || "#111111").slice(1) } };
+      c.border = { top: { style: "thin" }, left: { style: "thin" }, bottom: { style: "thin" }, right: { style: "thin" } }; c.alignment = { vertical: "middle", horizontal: rata || "left", wrapText: true }; };
+    ws.addRow([tgRentang(r.hari)].concat(r.hari.map(t => +t.slice(8)))); ws.addRow([""].concat(TG_HARI));
+    ws.mergeCells(1, 1, 2, 1); isiW(ws.getCell(1, 1), "#FFFF00", null, true, "center");
+    r.hari.forEach((t, i) => { isiW(ws.getCell(1, i + 2), "#F4B084", null, true, "center"); isiW(ws.getCell(2, i + 2), "#9BC2E6", null, true, "center"); });
+    tgBagian(r).forEach(b => {
+      if (!b.khusus) { const row = ws.addRow([tgJudulCab(b.c)].concat(r.hari.map(() => ""))); isiW(row.getCell(1), tgWarna(b.c), tgTinta(b.c)); r.hari.forEach((t, i) => isiW(row.getCell(i + 2), "#FFF2CC")); }
+      b.slot.forEach(s => { const row = ws.addRow([s.nama].concat(r.hari.map(t => tgNilai(r, s, t).v)));
+        isiW(row.getCell(1), tgWarna(b.c), tgTinta(b.c), true, b.khusus ? "center" : "left"); r.hari.forEach((t, i) => isiW(row.getCell(i + 2), "#FFF2CC")); });
+      if (!b.khusus) ws.addRow([]);
+    });
+    const buf = await wb.xlsx.writeBuffer();
+    await tgSerahkan(new File([buf], tgNamaFile(r, "xlsx"), { type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" }), "File Excel jadwal tugas diunduh.");
+  } catch (e) { toast("Gagal membuat Excel: " + e.message); }
+  finally { b0.disabled = false; }
+};
 
 // ---------- peringkat cabang (khusus admin) ----------
 let pkBulan = null;
