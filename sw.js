@@ -1,7 +1,7 @@
 // Service worker: menyimpan tampilan aplikasi supaya tetap bisa dibuka tanpa internet,
-// dan menampilkan notifikasi pengingat penilaian.
+// dan menampilkan notifikasi pengingat penilaian & foto kebersihan.
 // Naikkan VERSI setiap kali file aplikasi diperbarui.
-const VERSI = 'kacab-v9';
+const VERSI = 'kacab-v10';
 const META = 'kc-meta'; // berisi sesi login untuk notifikasi; jangan dihapus saat update
 const FILES = ['./', 'index.html', 'manifest.webmanifest', 'icon-192.png', 'icon-512.png', 'icon-maskable.png', 'apple-touch-icon.png'];
 self.addEventListener('install', e => {
@@ -28,7 +28,7 @@ self.addEventListener('fetch', e => {
 // ---------- notifikasi ----------
 self.addEventListener('push', e => {
   e.waitUntil((async () => {
-    let judul = 'Penilaian helper', isi = 'Ketuk untuk melihat helper yang belum dinilai.';
+    let judul = 'Penilaian helper', isi = 'Ketuk untuk melihat helper yang belum dinilai.', tab = '';
     try {
       const r = await (await caches.open(META)).match('sesi');
       if (r) {
@@ -37,17 +37,18 @@ self.addEventListener('push', e => {
         const res = await fetch(s.api, { method: 'POST', headers: { 'Content-Type': 'text/plain;charset=utf-8' },
           body: JSON.stringify({ fn: 'pengingat', token: s.token, args: {} }), signal: ctl.signal });
         const j = await res.json();
-        if (j.ok && j.data) { judul = j.data.judul; isi = j.data.isi; }
+        if (j.ok && j.data) { judul = j.data.judul; isi = j.data.isi; tab = j.data.tab || ''; }
       }
     } catch (_) {}
-    await self.registration.showNotification(judul, { body: isi, icon: 'icon-192.png', badge: 'icon-192.png', tag: 'pengingat', renotify: true, data: { url: './' } });
+    await self.registration.showNotification(judul, { body: isi, icon: 'icon-192.png', badge: 'icon-192.png', tag: tab ? 'kebersihan' : 'pengingat', renotify: true, data: { url: tab ? './?tab=' + tab : './', tab: tab } });
   })());
 });
 self.addEventListener('notificationclick', e => {
   e.notification.close();
   e.waitUntil((async () => {
     const all = await self.clients.matchAll({ type: 'window', includeUncontrolled: true });
-    for (const c of all) { if ('focus' in c) { c.postMessage('muat-ulang-pr'); return c.focus(); } }
-    return self.clients.openWindow('./');
+    const tab = (e.notification.data || {}).tab;
+    for (const c of all) { if ('focus' in c) { c.postMessage(tab === 'kebersihan' ? 'buka-kebersihan' : 'muat-ulang-pr'); return c.focus(); } }
+    return self.clients.openWindow((e.notification.data || {}).url || './');
   })());
 });

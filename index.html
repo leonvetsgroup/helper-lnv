@@ -149,6 +149,25 @@ nav.tabs button{position:relative}
 .chip.te-c.on{background:var(--accent);color:var(--accent-ink);border-color:var(--accent)}.chip.te-c small{opacity:.7;font-weight:500}
 .ts-row{display:flex;gap:6px;align-items:center}.ts-row input{flex:1;min-width:0;font-size:15px;padding:9px 10px;border:1px solid var(--line);border-radius:10px;background:var(--panel);color:var(--ink)}
 .ts-row .btn{min-height:40px;padding:6px 11px}
+.kb-ban{margin-top:10px;border-radius:12px;padding:11px 14px;font-size:14px}.kb-ban.a{background:var(--accent-soft)}.kb-ban.w{background:var(--warn);color:var(--warn-ink)}.kb-ban.c{background:var(--bad);color:var(--bad-ink)}.kb-ban.n{background:var(--na)}
+.kb-chips{display:flex;gap:6px;flex-wrap:wrap;margin-top:8px}.tag.kb-a{background:var(--ok);color:var(--ok-ink)}.tag.kb-b{background:var(--warn);color:var(--warn-ink)}.tag.kb-c{background:var(--bad);color:var(--bad-ink)}.tag.kb-n{background:var(--na);color:var(--muted)}
+.kb-room{margin-top:8px;background:var(--panel);border:1px solid var(--line);border-radius:12px;overflow:hidden}
+.kb-room.selesai{border-left:5px solid var(--ok-ink)}.kb-room.telat{border-left:5px solid var(--warn-ink)}.kb-room.belum{border-left:5px solid var(--bad-ink)}.kb-room.lewati{opacity:.7}
+.kb-head{display:flex;align-items:center;gap:8px;width:100%;background:none;border:0;padding:11px 12px;text-align:left;font:inherit;color:inherit;cursor:pointer;flex-wrap:wrap}
+.kb-no{flex:none;width:26px;height:26px;border-radius:50%;background:var(--na);display:grid;place-items:center;font-weight:800;font-size:12px}
+.kb-nm{flex:1;min-width:0;font-weight:700;font-size:15px}.kb-nm small{display:block;font-weight:500;font-size:12px;color:var(--muted);margin-top:2px}
+.kb-body{padding:0 12px 12px;display:grid;gap:8px}
+.kb-cekl{display:grid;gap:2px}.kb-cek{display:flex;gap:10px;align-items:flex-start;padding:7px 2px;font-size:14px;border-top:1px solid var(--line)}.kb-cek input{width:22px;height:22px;flex:none;accent-color:var(--accent);margin:0}
+.kb-lbl{font-size:12px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.04em;margin-top:4px}
+.kb-th-row{display:flex;gap:8px;flex-wrap:wrap}.kb-th{position:relative}.kb-th>button:first-child{border:1px solid var(--line);border-radius:10px;padding:0;background:var(--na);width:88px;height:88px;overflow:hidden;display:block;cursor:zoom-in}
+.kb-th img{width:100%;height:100%;object-fit:cover;display:block}.kb-th small{position:absolute;left:4px;bottom:4px;background:rgba(0,0,0,.6);color:#fff;border-radius:6px;padding:1px 5px;font-size:11px}
+.kb-x{position:absolute;top:-8px;right:-8px;width:26px;height:26px;border-radius:50%;border:0;background:var(--bad-ink);color:#fff;font-size:16px;line-height:1;cursor:pointer}
+.kb-act{display:flex;gap:8px;flex-wrap:wrap}.kb-act .btn{flex:1;min-width:140px}
+.kb-pic{border-top:1px dashed var(--line);padding-top:8px;display:grid;gap:8px}.kb-nilai{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:6px}.kb-nilai .opt{font-size:13px;padding:10px 4px}
+.kb-cat{font:inherit;font-size:15px;padding:10px;border:1px solid var(--line);border-radius:10px;background:var(--panel);color:var(--ink);width:100%}
+.kb-lewati{background:none;border:0;color:var(--muted);text-decoration:underline;font:inherit;font-size:13px;text-align:left;padding:4px 0;cursor:pointer}
+.kb-rk{display:block;width:100%;text-align:left;margin-top:8px;font:inherit;color:inherit;cursor:pointer}
+#vFoto{background:#000;color:#fff}#vFoto .fv-wrap{display:grid;place-items:center;min-height:calc(100vh - 70px);padding:10px}#fvImg{max-width:100%;max-height:calc(100vh - 110px);object-fit:contain}
 .rk-det{margin-top:8px;display:none}.rk-card.buka .rk-det{display:block}
 .prday{background:var(--panel);border:1px solid var(--line);border-left:5px solid #D93025;border-radius:12px;padding:12px 14px;display:flex;gap:10px;align-items:center}
 .prday.today{border-left-color:var(--accent)}
@@ -162,8 +181,8 @@ nav.tabs button{position:relative}
 <section id="vLogin" hidden>
   <div class="wrap">
     <img class="logo" src="icon-192.png" alt="">
-    <h1 class="center">Penilaian Helper</h1>
-    <p class="center muted small" style="margin:4px 0 18px">Leo N Vets Group · khusus kepala cabang</p>
+    <h1 class="center">Helper Leo N Vets</h1>
+    <p class="center muted small" style="margin:4px 0 18px">Kepala cabang &amp; helper · Leo N Vets Group</p>
     <div class="card" style="display:grid;gap:12px">
       <label class="field">Nama Anda<select id="lAkun"><option value="">Memuat daftar…</option></select></label>
       <label class="field">PIN<input id="lPin" class="pin-in" type="password" inputmode="numeric" autocomplete="current-password" maxlength="8" placeholder="••••••"></label>
@@ -236,6 +255,19 @@ nav.tabs button{position:relative}
     <div id="gfIsi"></div>
   </main>
 
+  <!-- tab kebersihan -->
+  <main id="tBersih" class="wrap" hidden>
+    <div id="notifHint2"></div>
+    <div class="rw"><div><h2 style="margin:0;font-size:19px">Ceklis kebersihan pagi</h2><div class="small muted" id="kbSub"></div></div></div>
+    <div class="grid2" style="margin-top:8px">
+      <label class="field" id="kbTglWrap">Tanggal<input type="date" id="kbTgl"></label>
+      <label class="field" id="kbCabWrap" hidden>Cabang<select id="kbCab"></select></label>
+    </div>
+    <div id="kbIsi"></div>
+    <input type="file" id="kbKamera" accept="image/*" capture="environment" hidden>
+    <input type="file" id="kbGaleri" accept="image/*" multiple hidden>
+  </main>
+
   <!-- tab jadwal tugas rinci -->
   <main id="tTugas" class="wrap tg-wrap" hidden>
     <div class="rw"><button class="btn ghost" id="tgPrev" aria-label="Minggu sebelumnya">‹</button><div class="center"><h2 id="tgJudul" style="margin:0;font-size:18px"></h2><div class="small muted" id="tgSub"></div></div><button class="btn ghost" id="tgNext" aria-label="Minggu berikutnya">›</button></div>
@@ -255,7 +287,7 @@ nav.tabs button{position:relative}
     <div id="installHint3"></div>
     <div class="card" style="margin-top:10px;display:grid;gap:8px">
       <b>Notifikasi pengingat</b>
-      <p class="small muted" style="margin:0">Setiap hari sekitar jam 17.00, HP ini mendapat notifikasi kalau masih ada helper yang belum Anda nilai (hari ini atau hari-hari sebelumnya).</p>
+      <p class="small muted" style="margin:0" id="nfKet">Setiap hari sekitar jam 17.00, HP ini mendapat notifikasi kalau masih ada helper yang belum Anda nilai (hari ini atau hari-hari sebelumnya).</p>
       <p class="notif-st" id="nfStatus"></p>
       <div style="display:flex;gap:8px;flex-wrap:wrap">
         <button class="btn" id="nfOn">Aktifkan notifikasi</button>
@@ -282,6 +314,7 @@ nav.tabs button{position:relative}
     <button role="tab" data-tab="tNilai" aria-selected="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg>Nilai hari ini<span class="badge" id="prBadge" hidden></span></button>
     <button role="tab" data-tab="tRiwayat" aria-selected="false"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 3"/></svg>Riwayat</button>
     <button role="tab" data-tab="tGrafik" aria-selected="false"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 3v18h18"/><path d="M7 15l4-4 3 3 6-7"/></svg>Grafik</button>
+    <button role="tab" data-tab="tBersih" aria-selected="false" id="tabBersih"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 3l7 7"/><path d="M3 21l7.5-7.5"/><path d="M9.5 9.5l5 5L11 18H6v-5z"/><path d="M13 5l6 6-2.5 2.5-6-6z"/></svg>Bersih</button>
     <button role="tab" data-tab="tTugas" aria-selected="false"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="17" rx="2"/><path d="M3 9h18M8 2v4M16 2v4M7 13h4M7 17h7"/></svg>Tugas</button>
     <button role="tab" data-tab="tPeringkat" aria-selected="false" id="tabPeringkat" hidden><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M8 21h8M12 17v4M7 4h10v5a5 5 0 0 1-10 0V4z"/><path d="M17 5h3v2a3 3 0 0 1-3 3M7 5H4v2a3 3 0 0 0 3 3"/></svg>Peringkat</button>
     <button role="tab" data-tab="tAkun" aria-selected="false"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="4"/><path d="M4 21a8 8 0 0 1 16 0"/></svg>Akun</button>
@@ -349,12 +382,17 @@ nav.tabs button{position:relative}
   </div>
 </section>
 
+<section id="vFoto" class="sheet" hidden>
+  <header class="top"><div class="row"><div><b>Foto dokumentasi</b><small id="fvInfo"></small></div><button class="btn" id="fvTutup" style="background:rgba(255,255,255,.2);color:inherit;min-height:36px;padding:6px 14px">Tutup</button></div></header>
+  <div class="fv-wrap"><img id="fvImg" alt="Foto dokumentasi kebersihan"></div>
+</section>
+
 <div class="toast" id="toast" hidden></div>
 <script>
 // ===================== PENGATURAN =====================
 // Alamat Apps Script (URL /exec dari Deploy > Manage deployments). Sama dengan link web admin.
 const API = "https://script.google.com/macros/s/AKfycbx0VfKovPWgOiXGgeHxzJ5J24QJ91EWrqptM0XhdR5Dy9ypvFawUxnOGOvqx15D7FTMLA/exec";
-const VERSI = "1.8 (25 Okt 2026)";
+const VERSI = "1.9 (20 Nov 2026)";
 // ======================================================
 const NILAI_DEF=[
  {k:"a",t:"A. Penampilan & kesiapan diri",items:[
@@ -427,7 +465,8 @@ function toast(msg, ms) { const t = $("toast"); t.textContent = msg; t.hidden = 
 function tampil(v) { ["vLogin", "vApp"].forEach(id => $(id).hidden = id !== v); }
 function bukaTab(id) {
   document.querySelectorAll("nav.tabs button").forEach(b => b.setAttribute("aria-selected", b.dataset.tab === id));
-  ["tNilai", "tRiwayat", "tGrafik", "tTugas", "tPeringkat", "tAkun"].forEach(x => $(x).hidden = x !== id);
+  ["tNilai", "tRiwayat", "tGrafik", "tBersih", "tTugas", "tPeringkat", "tAkun"].forEach(x => $(x).hidden = x !== id);
+  if (id === "tBersih") muatKb();
   if (id === "tTugas") muatTugas();
   if (id === "tGrafik") muatGrafik();
   if (id === "tPeringkat") muatPeringkat();
@@ -448,11 +487,14 @@ function renderSync() {
 async function muatAkunLogin() {
   const sel = $("lAkun"), isi = list => {
     const cur = sel.value || LS.get("akunTerakhir", "");
-    sel.innerHTML = '<option value="">Pilih nama Anda…</option>' + list.map(a => `<option value="${esc(a.id)}">${esc(a.nama)}${a.cabang ? " — " + esc(a.cabang) : ""}</option>`).join("");
+    const opt = a => `<option value="${esc(a.id)}">${esc(a.nama)}${a.cabang ? " — " + esc(a.cabang) : ""}</option>`;
+    const kc = list.filter(a => a.peran !== "helper"), hp = list.filter(a => a.peran === "helper"), cabs = [...new Set(hp.map(a => a.cabang || "Lainnya"))].sort();
+    sel.innerHTML = '<option value="">Pilih nama Anda…</option>' + (kc.length ? `<optgroup label="Kepala cabang & admin">${kc.map(opt).join("")}</optgroup>` : "") +
+      cabs.map(c => `<optgroup label="Helper — ${esc(c)}">${hp.filter(a => (a.cabang || "Lainnya") === c).sort((x, y) => String(x.nama).localeCompare(y.nama)).map(opt).join("")}</optgroup>`).join("");
     if (cur) sel.value = cur;
   };
   const cache = LS.get("akunLogin", null); if (cache) isi(cache);
-  try { const list = await api("akunLogin"); LS.set("akunLogin", list); isi(list); if (!list.length) $("lErr").textContent = "Belum ada akun kacab. Minta admin membuatkan akun dulu."; }
+  try { const list = await api("akunLogin"); LS.set("akunLogin", list); isi(list); if (!list.length) $("lErr").textContent = "Belum ada akun. Minta admin membuatkan akun dulu."; }
   catch (e) { if (!cache) $("lErr").textContent = e.offline ? "Butuh internet untuk login pertama kali." : e.message; }
 }
 $("lMasuk").onclick = async () => {
@@ -487,16 +529,31 @@ function sesiHabis(msg) {
 function simpanSesiSW() { try { if ("caches" in window) caches.open("kc-meta").then(c => sesi ? c.put("sesi", new Response(JSON.stringify({ token: sesi.token, api: API }))) : c.delete("sesi")); } catch (_) {} }
 
 // ---------- mulai ----------
+// tab yang tampil sesuai peran: helper hanya Bersih, Tugas, Akun
+function aturTab() {
+  const h = isHelper();
+  document.querySelectorAll("nav.tabs button").forEach(b => { const t = b.dataset.tab;
+    b.hidden = h ? !["tBersih", "tTugas", "tAkun"].includes(t) : (t === "tPeringkat" ? !isAdmin() : false); });
+  $("bellBtn").hidden = h; if (h) $("ticker").hidden = true;
+}
+function mulaiHelper() {
+  simpanSesiSW(); tampil("vApp"); aturTab();
+  $("hNama").textContent = sesi.akun.nama;
+  $("hJabatan").textContent = `Helper${sesi.akun.cabang ? " · " + sesi.akun.cabang : ""}`;
+  bukaTab("tBersih"); renderSync(); tampilInstall(); renderNotif();
+  api("saya").then(r => { sesi.akun = r.akun; sesi.cabang = r.cabang; LS.set("sesi", sesi); $("hJabatan").textContent = `Helper${sesi.akun.cabang ? " · " + sesi.akun.cabang : ""}${r.akun.statusHariIni && r.akun.statusHariIni !== "Masuk" ? " · hari ini " + r.akun.statusHariIni : ""}`; }).catch(e => { if (e.sesi) sesiHabis(e.message); });
+}
 function mulaiApp() {
+  if (isHelper()) return mulaiHelper();
   simpanSesiSW();
-  tampil("vApp");
+  tampil("vApp"); aturTab();
   $("hNama").textContent = sesi.akun.nama;
   $("hJabatan").textContent = isAdmin() ? `${sesi.akun.jabatan || "Admin"} · semua cabang` : `${sesi.akun.jabatan || "Kepala cabang"}${sesi.akun.cabang ? " · " + sesi.akun.cabang : ""}`;
   aturCabang();
   $("fTgl").value = st.tanggal; $("fTgl").max = hariIni();
   $("tabPeringkat").hidden = !isAdmin();
-  bukaTab("tNilai"); renderSync(); muatHari(); sinkron(); tampilInstall(); muatPR(); renderNotif(); muatPantau();
-  api("saya").then(r => { const lama = st.cabang; sesi.akun = r.akun; sesi.cabang = r.cabang; LS.set("sesi", sesi); aturCabang(); $("tabPeringkat").hidden = !isAdmin(); if (st.cabang !== lama) muatHari(); }).catch(e => { if (e.sesi) sesiHabis(e.message); });
+  bukaTab(new URLSearchParams(location.search).get("tab") === "kebersihan" ? "tBersih" : "tNilai"); renderSync(); muatHari(); sinkron(); tampilInstall(); muatPR(); renderNotif(); muatPantau();
+  api("saya").then(r => { const lama = st.cabang; sesi.akun = r.akun; sesi.cabang = r.cabang; LS.set("sesi", sesi); if (isHelper()) return location.reload(); aturCabang(); aturTab(); if (st.cabang !== lama) muatHari(); }).catch(e => { if (e.sesi) sesiHabis(e.message); });
 }
 // Kepala cabang terkunci di cabangnya sendiri; admin (atau akun tanpa cabang) bebas memilih.
 const cabTerkunci = () => !!(sesi && sesi.akun && !isAdmin() && sesi.akun.cabang);
@@ -517,6 +574,7 @@ $("fCab").onchange = () => { if (cabTerkunci()) return; st.cabang = $("fCab").va
 // ---------- daftar helper hari ini ----------
 const kunciHari = () => `hari_${st.tanggal}_${st.cabang}`;
 async function muatHari() {
+  if (isHelper()) return;
   if (!st.cabang) { st.data = null; renderHari(); return; }
   const k = kunciHari(), c = LS.get(k, null);
   st.data = c; renderHari(c ? "" : "Memuat…");
@@ -683,6 +741,7 @@ setInterval(() => { if (!document.hidden && sesi) sinkron(); }, 60000);
 
 // ---------- PR: penilaian yang belum diisi ----------
 async function muatPR() {
+  if (isHelper()) return;
   renderPR();
   try { const r = await api("tunggakan"); LS.set("pr", r); renderPR(); }
   catch (e) { if (e.sesi) return sesiHabis(e.message); }
@@ -799,6 +858,195 @@ $("gfIsi").addEventListener("click", e => { const c = e.target.closest("[data-gf
 $("gfCab").onchange = () => { gfCab = $("gfCab").value; muatGrafik(); };
 $("gfPrev").onclick = () => { gfBulan = new Date(gfBulan.getFullYear(), gfBulan.getMonth() - 1, 1); muatGrafik(); };
 $("gfNext").onclick = () => { gfBulan = new Date(gfBulan.getFullYear(), gfBulan.getMonth() + 1, 1); muatGrafik(); };
+
+// ---------- ceklis kebersihan & foto dokumentasi ----------
+// Helper: centang ceklis per ruangan & unggah foto sebelum batas (09.30). Kacab/admin: periksa foto & beri nilai.
+const isHelper = () => !!(sesi && sesi.akun && sesi.akun.peran === "helper");
+const kb = { tgl: hariIni(), cab: "", data: null, buka: {}, th: {}, simpanT: {}, target: null, sibuk: {} };
+const KB_STATUS = { belum: ["Belum difoto", "c"], selesai: ["Sudah difoto", "a"], telat: ["Terlambat", "b"], lewati: ["Tidak ada di cabang", "n"] };
+const NILAI_W = { "Bersih": "a", "Kurang": "b", "Tidak bersih": "c" };
+const kbKunci = () => "kb_" + (isHelper() ? hariIni() : kb.tgl) + "_" + (kb.cab || (isAdmin() ? "semua" : "saya"));
+const jamKe = s => { const [h, m] = String(s || "0:0").split(":").map(Number); return h * 60 + m; };
+const namaSaya = () => sesi && sesi.akun ? sesi.akun.nama : "";
+async function muatKb(diam) {
+  if (!isAdmin()) kb.cab = "";
+  if (isHelper()) kb.tgl = hariIni();
+  $("kbTgl").value = kb.tgl; $("kbTgl").max = hariIni(); $("kbTglWrap").hidden = isHelper();
+  $("kbCabWrap").hidden = !isAdmin();
+  if (isAdmin()) $("kbCab").innerHTML = '<option value="">Rekap semua cabang</option>' + (sesi.cabang || []).map(c => `<option ${c === kb.cab ? "selected" : ""}>${esc(c)}</option>`).join("");
+  const k = kbKunci(); if (!diam) renderKb(LS.get(k, null), "Memuat…");
+  try { const r = await api("kebersihan", { tanggal: kb.tgl, cabang: kb.cab }); LS.set(k, r); if (k === kbKunci()) { kb.data = r; renderKb(r); } }
+  catch (e) { if (e.sesi) return sesiHabis(e.message); if (!LS.get(k, null)) renderKb(null, e.offline ? "Butuh internet untuk memuat ceklis kebersihan." : e.message); else if (!diam) toast(e.offline ? "Offline: menampilkan data terakhir." : e.message); }
+}
+function kbBanner(r) {
+  if (r.tanggal !== hariIni()) return `<div class="kb-ban n">Laporan kebersihan ${esc(tglPanjang(r.tanggal))}</div>`;
+  const now = new Date(), m = now.getHours() * 60 + now.getMinutes(), batas = jamKe(r.batas), mulai = jamKe(r.mulai), b = r.batas.replace(":", ".");
+  if (m < mulai) return `<div class="kb-ban n">Beberes pagi dimulai jam ${r.mulai.replace(":", ".")}. Batas unggah foto jam ${b}.</div>`;
+  if (m <= batas) { const s = batas - m, t = s >= 60 ? `${Math.floor(s / 60)} jam ${s % 60} menit` : `${s} menit`;
+    return `<div class="kb-ban ${s <= 30 ? "w" : "a"}">⏰ Batas unggah foto jam <b>${b}</b> · sisa <b>${t}</b></div>`; }
+  return `<div class="kb-ban c">Batas jam ${b} sudah lewat. Foto yang diunggah sekarang tercatat <b>terlambat</b>.</div>`;
+}
+function renderKb(r, pesan) {
+  kb.data = r;
+  const el = $("kbIsi");
+  if (!r) { el.innerHTML = `<p class="muted center" style="margin-top:16px">${esc(pesan || "")}</p>`; $("kbSub").textContent = ""; return; }
+  if (r.rekap) return renderKbRekap(r);
+  $("kbSub").textContent = r.cabang;
+  const g = r.ringkas, sudah = g.selesai + g.telat, pct = g.total ? Math.round(sudah / g.total * 100) : 0, hak = r.hak;
+  let h = kbBanner(r) + `<div class="card" style="margin-top:10px"><div class="rw"><b>${sudah} dari ${g.total} ruangan sudah difoto</b><span class="small muted">${pct}%</span></div>
+    <div class="prog"><i style="width:${pct}%"></i></div>
+    <div class="kb-chips">${g.telat ? `<span class="tag kb-b">${g.telat} terlambat</span>` : ""}${g.belum ? `<span class="tag kb-c">${g.belum} belum</span>` : ""}${g.lewati ? `<span class="tag kb-n">${g.lewati} tidak ada</span>` : ""}${hak.nilai || g.dinilai ? `<span class="tag">${g.dinilai}/${g.total} diperiksa</span>` : ""}</div></div>`;
+  if (isAdmin()) h = `<button class="btn ghost" data-kb-rekap style="margin-top:10px">‹ Rekap semua cabang</button>` + h;
+  h += r.ruang.map(x => kbKartu(r, x)).join("");
+  h += `<p class="small muted" style="margin-top:12px">Foto otomatis diberi cap tanggal, jam, cabang & ruangan. ${hak.isi ? "Foto bisa dihapus oleh pengunggahnya pada hari yang sama." : ""}</p>`;
+  el.innerHTML = h;
+  kbMuatThumb();
+}
+function kbKartu(r, x) {
+  const hak = r.hak, st = KB_STATUS[x.status], buka = !!kb.buka[x.no], cekN = x.cek.length, itN = x.item.length;
+  const sibuk = kb.sibuk[x.no];
+  let h = `<div class="kb-room ${x.status}${buka ? " buka" : ""}"><button class="kb-head" data-kb-buka="${esc(x.no)}" aria-expanded="${buka}">
+    <span class="kb-no">${esc(x.no)}</span><span class="kb-nm">${esc(x.ruangan)}<small>${x.status === "lewati" ? "Dilewati" : `${cekN}/${itN} ceklis · ${x.foto.length} foto${x.pertama ? " · " + x.pertama.replace(":", ".") : ""}${x.helper ? " · " + esc(x.helper) : ""}`}</small></span>
+    <span class="tag kb-${st[1]}">${st[0]}</span>${x.pic.nilai ? `<span class="tag kb-${NILAI_W[x.pic.nilai]}">${esc(x.pic.nilai)}</span>` : ""}</button>`;
+  if (buka) {
+    h += `<div class="kb-body">`;
+    if (x.status !== "lewati") {
+      h += `<div class="kb-cekl">${x.item.map(it => `<label class="kb-cek"><input type="checkbox" data-kb-cek="${esc(x.no)}" value="${esc(it.id)}" ${x.cek.includes(it.id) ? "checked" : ""} ${hak.isi ? "" : "disabled"}><span>${esc(it.teks)}</span></label>`).join("")}</div>`;
+      h += `<div class="kb-lbl">Foto dokumentasi helper</div><div class="kb-th-row">${x.foto.map(f => kbThumb(r, x, f, "helper")).join("") || '<span class="small muted">Belum ada foto.</span>'}</div>`;
+      if (sibuk) h += `<p class="small" style="margin:6px 0 0">⏳ ${esc(sibuk)}</p>`;
+      else if (hak.isi && x.foto.length < r.maksFoto) h += `<div class="kb-act"><button class="btn" data-kb-foto="${esc(x.no)}" data-src="kamera">📷 Ambil foto</button><button class="btn ghost" data-kb-foto="${esc(x.no)}" data-src="galeri">Pilih dari galeri</button></div>`;
+      // pemeriksaan kacab / admin
+      if (hak.nilai) {
+        h += `<div class="kb-pic"><div class="kb-lbl">Pemeriksaan kepala cabang${x.pic.oleh ? ` <span class="muted">· ${esc(x.pic.oleh)}</span>` : ""}</div>
+          <div class="kb-nilai">${r.nilaiPilihan.map(v => `<button class="opt ${NILAI_W[v] === "a" ? "A" : NILAI_W[v] === "b" ? "B" : "C"}" aria-pressed="${x.pic.nilai === v}" data-kb-nilai="${esc(x.no)}" data-v="${esc(v)}">${esc(v)}</button>`).join("")}</div>
+          <input class="kb-cat" data-kb-cat="${esc(x.no)}" placeholder="Catatan (mis. lantai masih lengket)" value="${esc(x.pic.catatan)}" maxlength="300">
+          <div class="kb-th-row">${x.pic.foto.map(f => kbThumb(r, x, f, "pic")).join("")}</div>
+          ${x.pic.foto.length < r.maksFoto && !sibuk ? `<button class="btn ghost" data-kb-foto="${esc(x.no)}" data-src="kamera" data-jenis="pic" style="margin-top:6px">📷 Foto pemeriksaan</button>` : ""}</div>`;
+      } else if (x.pic.nilai) {
+        h += `<div class="kb-pic"><div class="kb-lbl">Hasil pemeriksaan ${esc(x.pic.oleh)}</div><b>${esc(x.pic.nilai)}</b>${x.pic.catatan ? ` — ${esc(x.pic.catatan)}` : ""}<div class="kb-th-row">${x.pic.foto.map(f => kbThumb(r, x, f, "pic")).join("")}</div></div>`;
+      }
+    }
+    if (hak.lewati && r.tanggal === hariIni()) h += `<button class="kb-lewati" data-kb-lewati="${esc(x.no)}" data-v="${x.lewati ? "0" : "1"}">${x.lewati ? "↩ Ruangan ini ada di cabang (tampilkan lagi)" : "Ruangan ini tidak ada di cabang kami"}</button>`;
+    h += `</div>`;
+  }
+  return h + `</div>`;
+}
+function kbThumb(r, x, f, jenis) {
+  const hapus = r.tanggal === hariIni() && (isAdmin() || f.o === namaSaya() || (jenis === "pic" && r.hak.nilai));
+  return `<span class="kb-th"><button data-kb-lihat="${esc(f.f)}" data-t="${esc(f.t)}" aria-label="Lihat foto ${esc(f.w)}"><img data-th="${esc(f.t)}" alt="" ${kb.th[f.t] ? `src="${kb.th[f.t]}"` : ""}><small>${esc(f.w.replace(":", "."))}${f.w > r.batas && jenis === "helper" ? " ⚠" : ""}</small></button>${hapus ? `<button class="kb-x" data-kb-hapus="${esc(f.f)}" data-no="${esc(x.no)}" data-jenis="${jenis}" aria-label="Hapus foto">×</button>` : ""}</span>`;
+}
+async function kbMuatThumb() {
+  const r = kb.data; if (!r || r.rekap) return;
+  const perlu = [...document.querySelectorAll("#kbIsi img[data-th]")].map(i => i.dataset.th).filter(t => !kb.th[t]);
+  for (let i = 0; i < perlu.length; i += 20) {
+    try { const o = await api("fotoLihat", { tanggal: r.tanggal, cabang: r.cabang, ids: perlu.slice(i, i + 20) }, 60000);
+      Object.keys(o).forEach(id => { if (o[id]) { kb.th[id] = o[id]; document.querySelectorAll(`img[data-th="${id}"]`).forEach(im => im.src = o[id]); } }); }
+    catch (e) { break; }
+  }
+}
+function renderKbRekap(r) {
+  $("kbSub").textContent = "Semua cabang";
+  const now = new Date(), lewat = r.tanggal < hariIni() || (now.getHours() * 60 + now.getMinutes() > jamKe(r.batas));
+  $("kbIsi").innerHTML = kbBanner(Object.assign({ mulai: "06:00" }, r)) + r.cabang.map(c => { const sudah = c.selesai + c.telat, pct = c.total ? Math.round(sudah / c.total * 100) : 0;
+    return `<button class="card kb-rk" data-kb-cab="${esc(c.cabang)}"><div class="rw"><b>${esc(c.cabang)}</b><span class="small muted">${sudah}/${c.total} ruangan</span></div>
+      <div class="prog"><i style="width:${pct}%"></i></div>
+      <div class="kb-chips">${c.telat ? `<span class="tag kb-b">${c.telat} terlambat</span>` : ""}${c.belum ? `<span class="tag kb-${lewat ? "c" : "n"}">${c.belum} belum</span>` : ""}<span class="tag">${c.dinilai}/${c.total} diperiksa</span>${c.kurang ? `<span class="tag kb-c">${c.kurang} kurang/tidak bersih</span>` : ""}</div>
+      <div class="small muted" style="margin-top:6px">${c.helper.length ? `Bertugas: ${esc(c.helper.join(", "))} · ${c.akunHelper}/${c.helper.length} punya akun` : "Tidak ada helper bertugas"}</div></button>`; }).join("");
+}
+const tglKb = t => { const d = new Date(t + "T00:00:00"); return `${d.getDate()} ${BULAN[d.getMonth()]} ${d.getFullYear()}`; };
+$("kbTgl").onchange = () => { const v = $("kbTgl").value; if (!v) return; if (v > hariIni()) { $("kbTgl").value = hariIni(); return; } kb.tgl = v; kb.buka = {}; muatKb(); };
+$("kbCab").onchange = () => { kb.cab = $("kbCab").value; kb.buka = {}; muatKb(); };
+// ----- interaksi kartu ruangan -----
+$("kbIsi").addEventListener("click", async e => {
+  const t = e.target;
+  const cb = t.closest("[data-kb-cab]"); if (cb) { kb.cab = cb.dataset.kbCab; kb.buka = {}; muatKb(); window.scrollTo(0, 0); return; }
+  if (t.closest("[data-kb-rekap]")) { kb.cab = ""; muatKb(); return; }
+  const bk = t.closest("[data-kb-buka]"); if (bk) { const no = bk.dataset.kbBuka; kb.buka[no] = !kb.buka[no]; renderKb(kb.data); return; }
+  const ft = t.closest("[data-kb-foto]"); if (ft) { kb.target = { no: ft.dataset.kbFoto, jenis: ft.dataset.jenis || "helper" }; const inp = ft.dataset.src === "galeri" ? $("kbGaleri") : $("kbKamera"); inp.value = ""; inp.click(); return; }
+  const lh = t.closest("[data-kb-lihat]"); if (lh) { kbLihat(lh.dataset.kbLihat, lh.dataset.t); return; }
+  const hp = t.closest("[data-kb-hapus]"); if (hp) { if (!confirm("Hapus foto ini?")) return; kbHapus(hp.dataset.no, hp.dataset.kbHapus, hp.dataset.jenis); return; }
+  const nl = t.closest("[data-kb-nilai]"); if (nl) { kbNilai(nl.dataset.kbNilai, nl.dataset.v); return; }
+  const lw = t.closest("[data-kb-lewati]"); if (lw) { kbLewati(lw.dataset.kbLewati, lw.dataset.v === "1"); return; }
+});
+$("kbIsi").addEventListener("change", e => {
+  const c = e.target.closest("[data-kb-cek]");
+  if (c) { const no = c.dataset.kbCek, x = kb.data.ruang.find(y => y.no === no);
+    x.cek = [...document.querySelectorAll(`[data-kb-cek="${no}"]:checked`)].map(i => i.value);
+    clearTimeout(kb.simpanT[no]); kb.simpanT[no] = setTimeout(() => kbSimpanCek(no), 700); return; }
+  const ct = e.target.closest("[data-kb-cat]"); if (ct) { const x = kb.data.ruang.find(y => y.no === ct.dataset.kbCat); kbNilai(x.no, x.pic.nilai, ct.value); }
+});
+async function kbSimpanCek(no) {
+  const r = kb.data, x = r.ruang.find(y => y.no === no);
+  try { await api("ceklisSimpan", { tanggal: r.tanggal, cabang: r.cabang, ruang_no: no, cek: x.cek }); LS.set(kbKunci(), r); }
+  catch (e) { if (e.sesi) return sesiHabis(e.message); toast(e.offline ? "Ceklis belum tersimpan: tidak ada internet." : e.message, 4500); }
+}
+// ----- foto: kecilkan, beri cap waktu, unggah -----
+function kbGambar(file) {
+  return new Promise((res, rej) => { const u = URL.createObjectURL(file), i = new Image();
+    i.onload = () => { URL.revokeObjectURL(u); res(i); }; i.onerror = () => { URL.revokeObjectURL(u); rej(new Error("Foto tidak bisa dibaca. Coba foto ulang.")); }; i.src = u; });
+}
+function kbKanvas(img, maks, cap) {
+  const s = Math.min(1, maks / Math.max(img.naturalWidth, img.naturalHeight)), c = document.createElement("canvas");
+  c.width = Math.round(img.naturalWidth * s); c.height = Math.round(img.naturalHeight * s);
+  const g = c.getContext("2d"); g.drawImage(img, 0, 0, c.width, c.height);
+  if (cap) { const z = Math.max(14, Math.round(c.width / 42)); g.font = `bold ${z}px system-ui,sans-serif`;
+    const pad = Math.round(z * .5), lines = cap, h = lines.length * (z + 4) + pad * 2, w = Math.min(c.width, Math.max(...lines.map(l => g.measureText(l).width)) + pad * 2);
+    g.fillStyle = "rgba(0,0,0,.55)"; g.fillRect(0, c.height - h, w, h); g.fillStyle = "#fff"; g.textBaseline = "top";
+    lines.forEach((l, k) => g.fillText(l, pad, c.height - h + pad + k * (z + 4))); }
+  return c;
+}
+async function kbFileDipilih(files) {
+  const tg = kb.target, r = kb.data; if (!tg || !r || !files.length) return;
+  const x = r.ruang.find(y => y.no === tg.no), daftar = tg.jenis === "pic" ? x.pic.foto : x.foto, sisa = r.maksFoto - daftar.length;
+  const list = [...files].slice(0, Math.max(0, sisa)); if (files.length > sisa) toast(`Maksimal ${r.maksFoto} foto per ruangan.`);
+  for (let i = 0; i < list.length; i++) {
+    kb.sibuk[x.no] = `Mengunggah foto ${list.length > 1 ? (i + 1) + "/" + list.length : ""}…`; renderKb(r);
+    try {
+      const img = await kbGambar(list[i]), n = new Date(), jam = `${String(n.getHours()).padStart(2, "0")}.${String(n.getMinutes()).padStart(2, "0")}`;
+      const cap = [`${tglKb(r.tanggal)} · ${jam}`, `${r.cabang} · ${x.ruangan}`, `${tg.jenis === "pic" ? "Diperiksa" : "Oleh"}: ${namaSaya()}`];
+      const besar = kbKanvas(img, 1280, cap).toDataURL("image/jpeg", .72), kecil = kbKanvas(img, 360).toDataURL("image/jpeg", .6);
+      const o = await api("fotoUnggah", { tanggal: r.tanggal, cabang: r.cabang, ruang_no: x.no, jenis: tg.jenis, data: besar, thumb: kecil }, 120000);
+      kb.th[o.foto.t] = kecil; daftar.push(o.foto);
+      if (tg.jenis !== "pic") { x.helper = x.helper || namaSaya(); x.status = x.status === "belum" ? (o.telat ? "telat" : "selesai") : x.status; if (!x.pertama) x.pertama = o.foto.w;
+        if (o.telat) toast("Foto tersimpan, tapi tercatat TERLAMBAT (lewat jam " + r.batas.replace(":", ".") + ").", 5000); else toast("Foto tersimpan ✅"); }
+      else toast("Foto pemeriksaan tersimpan.");
+    } catch (e) { if (e.sesi) { delete kb.sibuk[x.no]; return sesiHabis(e.message); } toast(e.offline ? "Foto belum terkirim: tidak ada internet. Coba lagi saat ada sinyal." : e.message, 5000); break; }
+  }
+  delete kb.sibuk[x.no]; kbHitung(r); renderKb(r); LS.set(kbKunci(), r);
+}
+function kbHitung(r) { const a = r.ruang.filter(x => !x.lewati), n = s => r.ruang.filter(x => x.status === s).length;
+  r.ringkas = { total: a.length, selesai: n("selesai"), telat: n("telat"), belum: n("belum"), lewati: n("lewati"), dinilai: a.filter(x => x.pic.nilai).length, kurang: a.filter(x => x.pic.nilai && x.pic.nilai !== "Bersih").length }; }
+$("kbKamera").onchange = e => kbFileDipilih(e.target.files);
+$("kbGaleri").onchange = e => kbFileDipilih(e.target.files);
+async function kbHapus(no, f, jenis) {
+  const r = kb.data;
+  try { await api("fotoHapus", { tanggal: r.tanggal, cabang: r.cabang, ruang_no: no, f, jenis }); toast("Foto dihapus."); muatKb(true); }
+  catch (e) { if (e.sesi) return sesiHabis(e.message); toast(e.offline ? "Butuh internet." : e.message, 4500); }
+}
+async function kbNilai(no, nilai, catatan) {
+  const r = kb.data, x = r.ruang.find(y => y.no === no); if (catatan === undefined) catatan = x.pic.catatan;
+  if (x.pic.nilai === nilai && catatan === x.pic.catatan) nilai = nilai; // simpan ulang catatan
+  const lama = Object.assign({}, x.pic); x.pic.nilai = nilai; x.pic.catatan = catatan; x.pic.oleh = nilai ? namaSaya() : ""; kbHitung(r); renderKb(r);
+  try { await api("picNilai", { tanggal: r.tanggal, cabang: r.cabang, ruang_no: no, nilai, catatan }); LS.set(kbKunci(), r); }
+  catch (e) { Object.assign(x.pic, lama); kbHitung(r); renderKb(r); if (e.sesi) return sesiHabis(e.message); toast(e.offline ? "Butuh internet untuk menyimpan penilaian kebersihan." : e.message, 4500); }
+}
+async function kbLewati(no, lewati) {
+  const r = kb.data;
+  if (lewati && !confirm("Tandai ruangan ini tidak ada di cabang Anda? Ruangan ini tidak akan dihitung lagi setiap hari (bisa ditampilkan lagi).")) return;
+  try { await api("lewatiRuang", { cabang: r.cabang, ruang_no: no, lewati }); toast(lewati ? "Ruangan dilewati." : "Ruangan ditampilkan lagi."); muatKb(true); }
+  catch (e) { if (e.sesi) return sesiHabis(e.message); toast(e.offline ? "Butuh internet." : e.message, 4500); }
+}
+// ----- lihat foto besar -----
+async function kbLihat(f, t) {
+  const r = kb.data; $("fvImg").src = kb.th[t] || ""; $("fvInfo").textContent = "Memuat foto…"; $("vFoto").hidden = false; document.body.style.overflow = "hidden"; history.pushState({ fv: 1 }, "");
+  try { const o = await api("fotoLihat", { tanggal: r.tanggal, cabang: r.cabang, ids: [f], besar: true }, 60000); if (o[f]) $("fvImg").src = o[f]; $("fvInfo").textContent = ""; }
+  catch (e) { $("fvInfo").textContent = e.offline ? "Butuh internet untuk melihat foto besar." : e.message; }
+}
+function tutupFoto() { $("vFoto").hidden = true; document.body.style.overflow = ""; $("fvImg").src = ""; }
+$("fvTutup").onclick = () => history.back();
+window.addEventListener("popstate", () => { if (!$("vFoto").hidden) tutupFoto(); });
+// perbarui hitung mundur tiap menit
+setInterval(() => { if (sesi && !$("tBersih").hidden && kb.data && !kb.data.rekap && kb.data.tanggal === hariIni()) { const b = document.querySelector("#kbIsi .kb-ban"); if (b) b.outerHTML = kbBanner(kb.data); } }, 60000);
 
 // ---------- jadwal tugas rinci (per shift / tugas) ----------
 // Admin mengisi semua cabang; kepala cabang hanya melihat cabangnya. Bisa diunduh jadi gambar & Excel.
@@ -1063,7 +1311,7 @@ $("pkNext").onclick = () => { pkBulan = new Date(pkBulan.getFullYear(), pkBulan.
 // ---------- pantauan semua cabang (khusus admin) ----------
 const isAdmin = () => !!(sesi && sesi.akun && sesi.akun.peran === "admin");
 async function muatPantau() {
-  if (!isAdmin()) { $("pantauBox").hidden = true; return; }
+  if (!isAdmin() || isHelper()) { $("pantauBox").hidden = true; return; }
   const k = "pantau_" + st.tanggal; renderPantau(LS.get(k, null));
   try { const r = await api("pantau", { tanggal: st.tanggal }); LS.set(k, r); if (k === "pantau_" + st.tanggal) renderPantau(r); }
   catch (e) { if (e.sesi) return sesiHabis(e.message); }
@@ -1098,6 +1346,9 @@ async function renderNotif() {
   else { const sub = await langgananSaatIni().catch(() => null); aktif = !!sub && Notification.permission === "granted" && LS.get("notifOn", false);
     html = aktif ? "✅ Notifikasi aktif di HP ini." : "Notifikasi belum aktif di HP ini."; }
   stt.textContent = html; on.hidden = !bisa || aktif; uji.hidden = off.hidden = !aktif;
+  $("nfKet").textContent = isHelper() ? "Setiap hari jam 06.00 HP ini diingatkan untuk beberes & foto dokumentasi, lalu jam 09.00 diingatkan lagi kalau masih ada ruangan yang belum difoto (batas 09.30)."
+    : "Setiap hari sekitar jam 17.00, HP ini mendapat notifikasi kalau masih ada helper yang belum Anda nilai. Jam 09.35 ada rekap foto kebersihan cabang untuk diperiksa.";
+  const hint2 = $("notifHint2"); if (hint2) hint2.innerHTML = (bisa && !aktif && isHelper()) ? `<div class="banner rw"><span>Aktifkan notifikasi supaya diingatkan jam 06.00 &amp; 09.00 untuk foto kebersihan.</span><button class="btn" data-nf="1">Aktifkan</button></div>` : "";
   hint.innerHTML = (bisa && !aktif && !LS.get("tutupNotifHint", 0)) ? `<div class="banner rw"><span>Aktifkan notifikasi supaya diingatkan jam 17.00 kalau masih ada helper yang belum dinilai.</span><span style="display:flex;gap:6px"><button class="btn" data-nf="1">Aktifkan</button><button class="btn ghost" data-nf-tutup="1" aria-label="Tutup">✕</button></span></div>` : "";
 }
 async function aktifkanNotif() {
@@ -1166,7 +1417,7 @@ const _bukaForm = bukaForm; bukaForm = function () { $("fSimpan").hidden = false
 // ---------- akun ----------
 function renderAkun() {
   $("aNama").textContent = sesi.akun.nama;
-  $("aInfo").textContent = `${sesi.akun.jabatan || "Kepala cabang"} · ${sesi.akun.cabang || "semua cabang"}${sesi.akun.peran === "admin" ? " · admin" : ""}`;
+  $("aInfo").textContent = `${sesi.akun.jabatan || (isHelper() ? "Helper" : "Kepala cabang")} · ${sesi.akun.cabang || "semua cabang"}${sesi.akun.peran === "admin" ? " · admin" : ""}`;
   $("aVersi").textContent = VERSI; renderSync();
 }
 $("pSimpan").onclick = async () => {
@@ -1201,7 +1452,9 @@ if ("serviceWorker" in navigator && location.protocol !== "file:") {
     reg.addEventListener("updatefound", () => { const w = reg.installing; w && w.addEventListener("statechange", () => {
       if (w.state === "installed" && navigator.serviceWorker.controller) { toast("Versi baru aplikasi tersedia. Memuat ulang…", 2500); w.postMessage("skipWaiting"); } }); });
   }).catch(() => {});
-  navigator.serviceWorker.addEventListener("message", e => { if (e.data === "muat-ulang-pr" && sesi) { bukaTab("tNilai"); muatPR(); muatHari(); } });
+  navigator.serviceWorker.addEventListener("message", e => { if (!sesi) return;
+    if (e.data === "buka-kebersihan" || (e.data === "muat-ulang-pr" && isHelper())) { bukaTab("tBersih"); }
+    else if (e.data === "muat-ulang-pr") { bukaTab("tNilai"); muatPR(); muatHari(); } });
   let reloaded = false;
   navigator.serviceWorker.addEventListener("controllerchange", () => { if (reloaded || !$("vForm").hidden || antrean.length && sinkronJalan) return; reloaded = true; location.reload(); });
 }
