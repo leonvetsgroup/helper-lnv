@@ -477,7 +477,7 @@ nav.tabs button{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 // ===================== PENGATURAN =====================
 // Alamat Apps Script (URL /exec dari Deploy > Manage deployments). Sama dengan link web admin.
 const API = "https://script.google.com/macros/s/AKfycbx0VfKovPWgOiXGgeHxzJ5J24QJ91EWrqptM0XhdR5Dy9ypvFawUxnOGOvqx15D7FTMLA/exec";
-const VERSI = "2.3 (27 Nov 2026)";
+const VERSI = "2.4 (27 Nov 2026)";
 // Warna tema: null = diambil otomatis dari logo.png. Bisa dipaksa, mis. ["#0F766E", "#F2A541"] (utama, aksen).
 const WARNA_TEMA = ["#A8462E", "#F2C200"]; // cokelat & kuning dari logo Leo N Vets
 // ======================================================
@@ -1336,13 +1336,11 @@ function kbWaSiapkan(r, jenis) {
   (async () => {
     const nm = r.cabang.replace(/[^\w]+/g, "-"), hasil = [], grup = [];
     let i = 0; while (i < calon.length) { const g = calon[i].f.v ? [calon[i]] : calon.slice(i, i + 2).filter(o => !o.f.v); grup.push(g); i += g.length; } // video diambil satu per satu
-    let n = 0;
-    for (const g of grup) {
-      if (kbwa.kunci !== k) return;
-      kbwa.prog = `${n}/${calon.length}`; kbWaTombol();
-      let o = {}; try { o = await api("fotoLihat", { tanggal: r.tanggal, cabang: r.cabang, ids: g.map(x => x.f.f), besar: true }, 120000); } catch (e) {}
+    let n = 0; kbwa.prog = `0/${calon.length}`; kbWaTombol();
+    const ambilG = async g => { let o = {}; try { o = await api("fotoLihat", { tanggal: r.tanggal, cabang: r.cabang, ids: g.map(x => x.f.f), besar: true }, 120000); } catch (e) {} n += g.length; if (kbwa.kunci === k) { kbwa.prog = `${n}/${calon.length}`; kbWaTombol(); } return o; };
+    const hasilG = []; for (let j = 0; j < grup.length; j += 3) { if (kbwa.kunci !== k) return; hasilG.push(...await Promise.all(grup.slice(j, j + 3).map(ambilG))); }
+    for (let j = 0; j < grup.length; j++) { const g = grup[j], o = hasilG[j] || {};
       for (const x of g) { const u = o[x.f.f] || (!x.f.v && kb.th[x.f.t]); if (!u) continue; try { hasil.push(Object.assign({ file: await kbDataKeFile(u, `kebersihan-${nm}-${x.x.no}-${x.f.w.replace(":", "")}-${hasil.length + 1}`) }, x)); } catch (e) {} }
-      n += g.length;
     }
     if (kbwa.kunci !== k) return;
     // urutkan seperti di aplikasi (per ruangan, lalu jam), lalu kurangi bila browser menolak (jumlah/ukuran)
@@ -1360,7 +1358,7 @@ function kbWaPreview() {
 function kbWaTombol() { const b = $("kbWaKirim"); if (!b) return; kbWaPreview();
   b.disabled = !kbwa.siap; b.textContent = kbwa.siap ? (kbwa.jenis === "tambahan" ? "📲 Kirim tambahan ke grup" : "📲 Kirim ke grup WhatsApp") : `⏳ Menyiapkan foto & video${kbwa.prog ? " " + kbwa.prog : ""}…`;
   const f = $("kbWaFt"), n = (kbwa.files || []).length, info = kbwa.info || { semua: [] };
-  if (f) f.textContent = !kbwa.siap ? "Mohon tunggu, foto & video sedang diambil." : n ? `${kbWaHitung(kbwa.info.kirim)} dikirim sekaligus dalam 1 album + keterangan.${info.semua.length > n ? ` (${info.semua.length - n} lainnya tetap ada di aplikasi)` : ""}` : "Pesan dikirim tanpa foto (HP ini tidak bisa melampirkan file; foto tetap bisa dilihat di aplikasi)."; }
+  if (f) f.textContent = !kbwa.siap ? "Mohon tunggu, foto & video sedang diambil." : n ? `${kbWaHitung(kbwa.info.kirim)} dikirim sekaligus dalam 1 album.${n > 1 ? " Teks laporan otomatis tersalin: di WhatsApp tahan kolom keterangan lalu pilih Tempel." : ""}${info.semua.length > n ? ` (${info.semua.length - n} lainnya tetap ada di aplikasi)` : ""}` : "Pesan dikirim tanpa foto (HP ini tidak bisa melampirkan file; foto tetap bisa dilihat di aplikasi)."; }
 function kbWaTampil(mode) {
   const r = kb.data; kbwa.mode = mode; $("kbWa").hidden = false;
   const aksi = (h, f) => { $("kbWaAksi").innerHTML = h; f(); };
@@ -1368,6 +1366,14 @@ function kbWaTampil(mode) {
     $("kbWaIc").textContent = "💬"; $("kbWaJudul").textContent = "Sudah terkirim ke grup?";
     $("kbWaTeks").textContent = `Pastikan pesannya sudah masuk ke grup WhatsApp cabang ${r.cabang}.`; $("kbWaPrev").innerHTML = "";
     return aksi(`<button class="btn wa" id="kbWaYa">✓ Sudah terkirim</button><button class="btn ghost" id="kbWaUlang">Belum, kirim lagi</button>`, () => { $("kbWaYa").onclick = kbWaCatat; $("kbWaUlang").onclick = () => kbWaTampil("ajak"); });
+  }
+  if (mode === "konfirmasi2") { // album sudah dibagikan tanpa teks
+    $("kbWaIc").textContent = "💬"; $("kbWaJudul").textContent = "Foto & video sudah masuk grup?";
+    $("kbWaTeks").innerHTML = `Teks laporan sudah <b>tersalin otomatis</b>. Kalau tadi belum ditempel di keterangan foto, ketuk <b>Kirim teks laporan</b> lalu pilih grup yang sama.`;
+    $("kbWaPrev").innerHTML = "";
+    return aksi(`<button class="btn wa" id="kbWaYa">✓ Foto & teks sudah masuk</button><button class="btn" id="kbWaTeksLagi">💬 Kirim teks laporan</button><button class="btn ghost" id="kbWaUlang">Foto belum masuk, kirim lagi</button>`, () => {
+      $("kbWaYa").onclick = kbWaCatat; $("kbWaUlang").onclick = () => kbWaTampil("ajak");
+      $("kbWaTeksLagi").onclick = () => { try { navigator.clipboard && navigator.clipboard.writeText(kbwa.teks).catch(() => {}); } catch (e) {} kbWaMe(kbwa.teks || kbWaPesan(kb.data)); kbWaTampil("konfirmasi"); }; });
   }
   if (mode === "dobel") { // sudah lapor & tidak ada foto baru
     $("kbWaIc").textContent = "✋"; $("kbWaJudul").textContent = `Laporan sudah dikirim jam ${r.saya.lapor.replace(":", ".")}`;
@@ -1396,11 +1402,15 @@ async function kbWaKirim(cara) {
   const teks = kbWaPesan(r, files);
   try { navigator.clipboard && navigator.clipboard.writeText(teks).catch(() => {}); } catch (e) {} // cadangan: teks bisa ditempel bila tidak ikut
   if (!files.length) { kbWaMe(teks); return kbWaTampil("konfirmasi"); }
-  let bisa = false; try { bisa = !!(navigator.canShare && navigator.canShare({ files, text: teks })); } catch (e) {}
+  // WhatsApp (Android) hanya mengambil TEKS bila banyak file dibagikan bersama teks. Jadi: 1 file -> file + teks;
+  // lebih dari 1 file -> file saja (jadi album), teks sudah tersalin untuk ditempel, lalu bisa dikirim menyusul.
+  const data = files.length === 1 ? { files, text: teks } : { files };
+  kbwa.teks = teks; kbwa.denganTeks = files.length === 1;
+  let bisa = false; try { bisa = !!(navigator.canShare && navigator.canShare(data)); } catch (e) {}
   if (!bisa) return kbWaGagal(cara, "HP/browser ini menolak melampirkan " + files.length + " file (canShare)");
-  try { await navigator.share({ files, text: teks }); }
+  try { await navigator.share(data); }
   catch (e) { if (e.name === "AbortError") { kbWaJalan = false; return; } return kbWaGagal(cara, (e.name || "Error") + (e.message ? ": " + e.message : "")); }
-  kbWaTampil("konfirmasi");
+  kbWaTampil(kbwa.denganTeks ? "konfirmasi" : "konfirmasi2");
 }
 function kbWaGagal(cara, alasan) {
   kbWaJalan = false; console.warn("bagikan gagal:", cara, alasan);
