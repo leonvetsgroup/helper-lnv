@@ -477,7 +477,7 @@ nav.tabs button{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 // ===================== PENGATURAN =====================
 // Alamat Apps Script (URL /exec dari Deploy > Manage deployments). Sama dengan link web admin.
 const API = "https://script.google.com/macros/s/AKfycbx0VfKovPWgOiXGgeHxzJ5J24QJ91EWrqptM0XhdR5Dy9ypvFawUxnOGOvqx15D7FTMLA/exec";
-const VERSI = "2.2 (27 Nov 2026)";
+const VERSI = "2.3 (27 Nov 2026)";
 // Warna tema: null = diambil otomatis dari logo.png. Bisa dipaksa, mis. ["#0F766E", "#F2A541"] (utama, aksen).
 const WARNA_TEMA = ["#A8462E", "#F2C200"]; // cokelat & kuning dari logo Leo N Vets
 // ======================================================
@@ -1289,7 +1289,7 @@ async function kbLewati(no, lewati) {
 // ----- lapor ke grup WhatsApp: pesan & foto disiapkan aplikasi, helper tinggal pilih grup lalu Kirim -----
 // Semua foto & video ruangan milik helper dikirim SEKALI sebagai satu album + keterangan (tidak per foto), supaya grup tidak kebanjiran pesan.
 // Kirim ulang: hanya foto/video yang baru sejak lapor terakhir; kalau tidak ada yang baru, minta konfirmasi dulu (cegah pesan dobel).
-const KB_WA_MAKS = 10; // batas file sekali bagikan dari browser HP
+const KB_WA_MAKS = 10, KB_WA_BYTE = 40 * 1024 * 1024; // batas file & ukuran total sekali bagikan dari browser HP
 const kbwa = { kunci: "", files: null, siap: false, mode: "", jenis: "", info: null, prog: "" };
 const kbMilik = r => (r.adaPj ? r.ruang.filter(x => x.saya) : r.ruang).filter(x => !x.lewati);
 const kbBeres = x => x.status === "selesai" || x.status === "telat";
@@ -1310,10 +1310,10 @@ function kbWaKartu(r) {
 }
 const kbJamKini = () => { const n = new Date(); return `${String(n.getHours()).padStart(2, "0")}.${String(n.getMinutes()).padStart(2, "0")}`; };
 function kbWaHitung(l) { const v = l.filter(o => o.f.v).length, f = l.length - v; return [f ? `📷 ${f} foto` : "", v ? `🎥 ${v} video` : ""].filter(Boolean).join(" · "); }
-function kbWaPesan(r) {
+function kbWaPesan(r, filesKirim) {
   const m = kbMilik(r), d = new Date(r.tanggal + "T00:00:00"), nama = (r.saya && r.saya.nama) || namaSaya();
   const slot = [...new Set(m.map(x => x.pj && x.pj.slot ? x.pj.slot.replace(/^\s*\d+[.)]\s*/, "") : "").filter(Boolean))], telat = m.filter(x => x.status === "telat").length;
-  const info = kbwa.info || { semua: [], kirim: [] }, kirim = info.kirim, lebih = info.semua.length > kirim.length ? `(${kirim.length} dari ${info.semua.length} terlampir, sisanya di aplikasi)` : "";
+  const info0 = kbwa.info || { semua: [], kirim: [] }, info = filesKirim ? { semua: info0.semua, kirim: info0.kirim.filter(o => filesKirim.includes(o.file)) } : info0, kirim = info.kirim, lebih = info.semua.length > kirim.length ? `(${kirim.length} dari ${info.semua.length} terlampir, sisanya di aplikasi)` : "";
   if (kbwa.jenis === "tambahan") {
     const rg = [...new Set(info.semua.map(o => o.x.ruangan))];
     return [`📎 *Tambahan dokumentasi – ${r.cabang}*`, `${HARI[d.getDay()]}, ${tglKb(r.tanggal)} · jam ${kbJamKini()}`, `Helper: ${nama}`, `${kbWaHitung(info.semua)} baru: ${rg.join(", ")}`, lebih].filter(Boolean).join("\n");
@@ -1323,8 +1323,10 @@ function kbWaPesan(r) {
     ...(m.length <= 12 ? [""].concat(m.map(x => `• ${x.ruangan}${x.status === "telat" ? " ⚠ telat" : " ✓"}`)) : []),
     "", "Detail & penilaian ada di aplikasi Helper LNV."].filter((s, i, a) => s !== "" || (a[i - 1] !== "" && i > 0)).join("\n");
 }
-async function kbDataKeFile(u, nama) { const bl = await (await fetch(u)).blob(), mime = bl.type || "image/jpeg";
-  const ext = /mp4/.test(mime) ? "mp4" : /quicktime/.test(mime) ? "mov" : /webm/.test(mime) ? "webm" : "jpg"; return new File([bl], nama + "." + ext, { type: mime }); }
+async function kbDataKeFile(u, nama) { const bl = await (await fetch(u)).blob(); let mime = (bl.type || "image/jpeg").split(";")[0];
+  if (/quicktime|x-m4v|matroska/.test(mime)) mime = "video/mp4"; // ekstensi .mov/.mkv ditolak browser saat dibagikan
+  if (!/^(image\/(jpeg|png|webp)|video\/(mp4|webm))$/.test(mime)) mime = /^video/.test(mime) ? "video/mp4" : "image/jpeg";
+  const ext = { "video/mp4": "mp4", "video/webm": "webm", "image/png": "png", "image/webp": "webp" }[mime] || "jpg"; return new File([bl], nama + "." + ext, { type: mime }); }
 const kbBisaFile = () => { try { return !!(navigator.canShare && window.File && navigator.canShare({ files: [new File(["x"], "x.jpg", { type: "image/jpeg" })] })); } catch (e) { return false; } };
 function kbWaSiapkan(r, jenis) {
   const semua = jenis === "tambahan" ? kbWaBaru(r) : kbWaMedia(r, ""), calon = semua.slice(0, KB_WA_MAKS);
@@ -1345,7 +1347,7 @@ function kbWaSiapkan(r, jenis) {
     if (kbwa.kunci !== k) return;
     // urutkan seperti di aplikasi (per ruangan, lalu jam), lalu kurangi bila browser menolak (jumlah/ukuran)
     const urutR = kbMilik(r).map(x => x.no); hasil.sort((a, b) => urutR.indexOf(a.x.no) - urutR.indexOf(b.x.no) || (a.f.w < b.f.w ? -1 : 1));
-    let pakai = hasil.slice(); const boleh = l => { try { return navigator.canShare({ files: l.map(o => o.file) }); } catch (e) { return false; } };
+    let pakai = hasil.slice(); const boleh = l => { try { return l.reduce((a, o) => a + o.file.size, 0) <= KB_WA_BYTE && navigator.canShare({ files: l.map(o => o.file) }); } catch (e) { return false; } };
     while (pakai.length && !boleh(pakai)) { const iv = pakai.map(o => !!o.f.v).lastIndexOf(true); pakai.splice(iv >= 0 && pakai.length > 1 ? iv : pakai.length - 1, 1); } // buang video dulu bila terlalu besar
     kbwa.info = { semua, kirim: pakai }; kbwa.files = pakai.map(o => o.file); kbwa.siap = true; kbwa.prog = ""; kbWaTombol();
   })();
@@ -1385,16 +1387,34 @@ function kbWaBuka() { const r = kb.data; if (!r || !kbWaSelesai(r)) return;
 function kbWaTutup() { $("kbWa").hidden = true; kbwa.mode = ""; }
 $("kbWa").addEventListener("click", e => { if (e.target.id === "kbWa") kbWaTutup(); });
 let kbWaJalan = false;
-async function kbWaKirim() {
+function kbWaMe(teks) { const u = "https://wa.me/?text=" + encodeURIComponent(teks), w = window.open(u, "_blank"); if (!w) location.href = u; }
+// cara: "semua" (foto+video), "foto" (tanpa video), "teks"
+async function kbWaKirim(cara) {
   if (kbWaJalan) return; kbWaJalan = true; setTimeout(() => kbWaJalan = false, 2500); // cegah ketuk dua kali
-  const r = kb.data, teks = kbWaPesan(r), files = kbwa.files || [];
+  cara = typeof cara === "string" ? cara : "semua";
+  const r = kb.data, semua = kbwa.files || [], files = cara === "teks" ? [] : cara === "foto" ? semua.filter(f => !/^video/.test(f.type)) : semua;
+  const teks = kbWaPesan(r, files);
   try { navigator.clipboard && navigator.clipboard.writeText(teks).catch(() => {}); } catch (e) {} // cadangan: teks bisa ditempel bila tidak ikut
-  const waMe = () => { const w = window.open("https://wa.me/?text=" + encodeURIComponent(teks), "_blank"); if (!w) location.href = "https://wa.me/?text=" + encodeURIComponent(teks); };
-  try {
-    if (files.length && navigator.canShare && navigator.canShare({ files, text: teks })) await navigator.share({ files, text: teks });
-    else waMe();
-  } catch (e) { if (e.name === "AbortError") return; waMe(); }
+  if (!files.length) { kbWaMe(teks); return kbWaTampil("konfirmasi"); }
+  let bisa = false; try { bisa = !!(navigator.canShare && navigator.canShare({ files, text: teks })); } catch (e) {}
+  if (!bisa) return kbWaGagal(cara, "HP/browser ini menolak melampirkan " + files.length + " file (canShare)");
+  try { await navigator.share({ files, text: teks }); }
+  catch (e) { if (e.name === "AbortError") { kbWaJalan = false; return; } return kbWaGagal(cara, (e.name || "Error") + (e.message ? ": " + e.message : "")); }
   kbWaTampil("konfirmasi");
+}
+function kbWaGagal(cara, alasan) {
+  kbWaJalan = false; console.warn("bagikan gagal:", cara, alasan);
+  const ada = kbwa.files || [], vid = ada.filter(f => /^video/.test(f.type)).length, mb = (ada.reduce((a, f) => a + f.size, 0) / 1048576).toFixed(1);
+  kbwa.mode = "gagal"; $("kbWa").hidden = false;
+  $("kbWaIc").textContent = "⚠️"; $("kbWaJudul").textContent = "Foto/video belum terlampir";
+  $("kbWaTeks").innerHTML = `HP menolak membagikan ${cara === "foto" ? "foto" : "foto & video"} ini sekaligus. Belum ada yang terkirim ke grup.<br>Coba pilihan di bawah.`;
+  $("kbWaPrev").innerHTML = `<p class="small muted" style="margin:0;text-align:center">Info untuk admin: ${esc(alasan)} · ${ada.length} file (${vid} video) · ${mb} MB</p>`;
+  $("kbWaAksi").innerHTML = (cara === "semua" && vid ? `<button class="btn wa" id="kbWaFoto">📷 Kirim foto saja (tanpa video)</button>` : "")
+    + (cara === "semua" ? `<button class="btn ${vid ? "ghost" : "wa"}" id="kbWaCoba">🔁 Coba lagi</button>` : "")
+    + `<button class="btn ghost" id="kbWaTeksSaja">💬 Kirim teks saja</button><button class="btn ghost" id="kbWaNanti2">Nanti saja</button>`;
+  if ($("kbWaFoto")) $("kbWaFoto").onclick = () => kbWaKirim("foto");
+  if ($("kbWaCoba")) $("kbWaCoba").onclick = () => kbWaKirim("semua");
+  $("kbWaTeksSaja").onclick = () => kbWaKirim("teks"); $("kbWaNanti2").onclick = kbWaTutup;
 }
 async function kbWaCatat() {
   const r = kb.data, m = kbMilik(r), b = $("kbWaYa"); b.disabled = true; b.textContent = "Menyimpan…";
