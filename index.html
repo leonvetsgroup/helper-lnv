@@ -229,6 +229,19 @@ nav.tabs button{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .kb-lewati{background:none;border:0;color:var(--muted);text-decoration:underline;font:inherit;font-size:13px;text-align:left;padding:4px 0;cursor:pointer}
 .kb-rk{display:block;width:100%;text-align:left;margin-top:10px;font:inherit;color:inherit;cursor:pointer;transition:transform .18s var(--ease)}
 .kb-prosesbar{height:6px;border-radius:9px;background:var(--na);overflow:hidden;margin-top:4px}.kb-prosesbar i{display:block;height:100%;background:var(--accent-2);transition:width .3s}
+.kb-wa{margin-top:12px;border-radius:var(--r);padding:14px 15px;background:var(--ok);color:var(--ok-ink);display:grid;gap:10px;border:1.5px solid color-mix(in srgb,var(--ok-ink) 30%,transparent);animation:sheetIn .35s var(--ease)}
+.kb-wa .small{color:inherit;opacity:.85;margin-top:2px}
+.kb-wa.sudah{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:11px 15px;font-weight:700;font-size:14px;animation:none}
+.kb-wa-lagi{background:none;border:0;color:inherit;text-decoration:underline;font:inherit;font-size:13px;font-weight:600;cursor:pointer;padding:4px 0;white-space:nowrap}
+.btn.wa{background:#128C4A;color:#fff;box-shadow:0 6px 18px -8px #128C4A}.btn.wa:disabled{opacity:.6;cursor:wait}
+.kbwa-ov{position:fixed;inset:0;z-index:30;background:rgba(20,12,8,.5);display:flex;align-items:flex-end;justify-content:center;animation:fadeIn .2s}
+.kbwa-pn{width:100%;max-width:520px;max-height:92vh;overflow:auto;background:var(--panel);color:var(--ink);border-radius:26px 26px 0 0;padding:22px 18px calc(20px + env(safe-area-inset-bottom));display:grid;gap:12px;animation:sheetIn .32s var(--ease)}
+.kbwa-pn h2{margin:0;font-size:20px;text-align:center}.kbwa-pn>p{margin:0;text-align:center}
+.kbwa-ic{font-size:44px;line-height:1;text-align:center}
+.kbwa-prev{background:#E7FFDB;color:#111;border-radius:14px 14px 14px 4px;padding:10px 12px;font-size:13.5px;line-height:1.45;white-space:pre-wrap;word-break:break-word;box-shadow:0 1px 2px rgba(0,0,0,.15)}
+.kbwa-prev .ft{display:flex;gap:6px;margin-bottom:8px}.kbwa-prev .ft img{width:72px;height:72px;object-fit:cover;border-radius:10px;background:#cde}
+.kbwa-aksi{display:grid;gap:8px}
+@keyframes fadeIn{from{opacity:0}}
 #vFoto{background:#000;color:#fff}#vFoto .fv-wrap{display:grid;place-items:center;min-height:calc(100vh - 80px);padding:10px}#fvImg,#fvVid{max-width:100%;max-height:calc(100vh - 120px);object-fit:contain;border-radius:12px}
 .rk-det{margin-top:8px;display:none}.rk-card.buka .rk-det{display:block}
 .prday{background:var(--panel);border:1px solid var(--line);border-left:5px solid #E5484D;border-radius:var(--r);padding:13px 15px;display:flex;gap:10px;align-items:center;box-shadow:var(--sh)}
@@ -456,12 +469,15 @@ nav.tabs button{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
   <div class="fv-wrap"><img id="fvImg" alt="Foto dokumentasi kebersihan"><video id="fvVid" controls playsinline hidden></video></div>
 </section>
 
+<div id="kbWa" class="kbwa-ov" hidden><div class="kbwa-pn" role="dialog" aria-modal="true" aria-labelledby="kbWaJudul">
+  <div class="kbwa-ic" id="kbWaIc">✅</div><h2 id="kbWaJudul"></h2><p class="small muted" id="kbWaTeks"></p>
+  <div id="kbWaPrev"></div><div class="kbwa-aksi" id="kbWaAksi"></div></div></div>
 <div class="toast" id="toast" hidden></div>
 <script>
 // ===================== PENGATURAN =====================
 // Alamat Apps Script (URL /exec dari Deploy > Manage deployments). Sama dengan link web admin.
 const API = "https://script.google.com/macros/s/AKfycbx0VfKovPWgOiXGgeHxzJ5J24QJ91EWrqptM0XhdR5Dy9ypvFawUxnOGOvqx15D7FTMLA/exec";
-const VERSI = "2.0 (24 Nov 2026)";
+const VERSI = "2.1 (27 Nov 2026)";
 // Warna tema: null = diambil otomatis dari logo.png. Bisa dipaksa, mis. ["#0F766E", "#F2A541"] (utama, aksen).
 const WARNA_TEMA = ["#A8462E", "#F2C200"]; // cokelat & kuning dari logo Leo N Vets
 // ======================================================
@@ -1002,9 +1018,12 @@ function renderKb(r, pesan) {
     <div class="kb-chips">${n("telat") ? `<span class="tag kb-b">${n("telat")} terlambat</span>` : ""}${n("belum") ? `<span class="tag kb-c">${n("belum")} belum</span>` : ""}${!milik && g.lewati ? `<span class="tag kb-n">${g.lewati} tidak ada</span>` : ""}${hak.nilai || g.dinilai ? `<span class="tag">${g.dinilai}/${g.total} diperiksa</span>` : ""}</div></div></div>`;
   if (!isHelper() && r.adaPj && (r.perHelper || []).length) {
     h += `<div class="kb-ph"><div class="kb-lbl">Per penanggung jawab</div>` + r.perHelper.map(p => { const s = p.selesai + p.telat, q = p.total ? Math.round(s / p.total * 100) : 0;
-      return `<div class="kb-ph-row"><span><b>${esc(p.nama)}</b>${p.telat ? ` <span class="tag kb-b">${p.telat} telat</span>` : ""}</span><span class="small ${s === p.total ? "" : "muted"}">${s}/${p.total}</span><span class="bar"><i style="width:${q}%"></i></span></div>`; }).join("") + `</div>`;
+      const wa = p.lapor ? ` <span class="tag kb-a">WA ✓ ${esc(p.lapor.replace(":", "."))}</span>` : s === p.total && p.total && p.nama.charAt(0) !== "(" && r.tanggal === hariIni() ? ` <span class="tag kb-c">Belum lapor WA</span>` : "";
+      return `<div class="kb-ph-row"><span><b>${esc(p.nama)}</b>${p.telat ? ` <span class="tag kb-b">${p.telat} telat</span>` : ""}${wa}</span><span class="small ${s === p.total ? "" : "muted"}">${s}/${p.total}</span><span class="bar"><i style="width:${q}%"></i></span></div>`; }).join("") + `</div>`;
   }
+  if (!isHelper() && !r.adaPj && (r.lapor || []).length) h += `<div class="small" style="margin-top:10px">📲 Lapor grup WA: ${r.lapor.map(l => esc(l.nama) + " " + esc(l.waktu.replace(":", "."))).join(", ")}</div>`;
   h += `</div>`;
+  if (kbWaSelesai(r)) h += kbWaKartu(r);
   if (isAdmin()) h = `<button class="btn ghost" data-kb-rekap style="margin-top:12px">‹ Rekap semua cabang</button>` + h;
   if (milik) {
     const lain = r.ruang.filter(x => !x.saya);
@@ -1014,6 +1033,7 @@ function renderKb(r, pesan) {
   h += `<p class="small muted" style="margin-top:14px">Foto & video otomatis diberi cap tanggal, jam, cabang & ruangan. Video maksimal 60 detik dan dikecilkan otomatis. ${hak.isi ? "Foto/video bisa dihapus oleh pengunggahnya pada hari yang sama." : ""}</p>`;
   el.innerHTML = h;
   kbMuatThumb();
+  if (kbWaSelesai(r) && !kbWaSudah(r)) kbWaSiapkan(r); // siapkan foto lebih dulu supaya tombol bagikan langsung jalan
 }
 function kbKartu(r, x) {
   const hak = r.hak, st = KB_STATUS[x.status], buka = !!kb.buka[x.no], cekN = x.cek.length, itN = x.item.length;
@@ -1065,7 +1085,8 @@ function renderKbRekap(r) {
       <div class="prog"><i style="width:${pct}%"></i></div>
       <div class="kb-chips">${c.telat ? `<span class="tag kb-b">${c.telat} terlambat</span>` : ""}${c.belum ? `<span class="tag kb-${lewat ? "c" : "n"}">${c.belum} belum</span>` : ""}<span class="tag">${c.dinilai}/${c.total} diperiksa</span>${c.kurang ? `<span class="tag kb-c">${c.kurang} kurang/tidak bersih</span>` : ""}</div>
       <div class="small muted" style="margin-top:6px">${c.helper.length ? `Bertugas: ${esc(c.helper.join(", "))} · ${c.akunHelper}/${c.helper.length} punya akun` : "Tidak ada helper bertugas"}</div>
-      ${(c.pjKurang || []).length ? `<div class="small" style="margin-top:4px;color:var(--bad-ink)">Belum lengkap: ${esc(c.pjKurang.join(", "))}</div>` : ""}</button>`; }).join("");
+      ${(c.pjKurang || []).length ? `<div class="small" style="margin-top:4px;color:var(--bad-ink)">Belum lengkap: ${esc(c.pjKurang.join(", "))}</div>` : ""}
+      ${(c.laporWa || []).length ? `<div class="small" style="margin-top:4px;color:var(--ok-ink)">📲 Lapor WA: ${esc(c.laporWa.join(", "))}</div>` : ""}${(c.belumLapor || []).length ? `<div class="small" style="margin-top:4px;color:var(--bad-ink)">Belum lapor WA: ${esc(c.belumLapor.join(", "))}</div>` : ""}</button>`; }).join("");
   if ((r.bentrok || []).length) $("kbIsi").insertAdjacentHTML("afterbegin", `<div class="kb-ban w" style="animation:none">⚠ Nama ada di baris tugas sekaligus LIBUR/CUTI/IJIN: ${esc(r.bentrok.join(", "))}. Penanggung jawabnya dialihkan ke cadangan; mohon cek Jadwal Tugas.</div>`);
 }
 const tglKb = t => { const d = new Date(t + "T00:00:00"); return `${d.getDate()} ${BULAN[d.getMonth()]} ${d.getFullYear()}`; };
@@ -1077,6 +1098,7 @@ $("kbIsi").addEventListener("click", async e => {
   const cb = t.closest("[data-kb-cab]"); if (cb) { kb.cab = cb.dataset.kbCab; kb.buka = {}; muatKb(); window.scrollTo(0, 0); return; }
   if (t.closest("[data-kb-rekap]")) { kb.cab = ""; muatKb(); return; }
   const bk = t.closest("[data-kb-buka]"); if (bk) { const no = bk.dataset.kbBuka; kb.buka[no] = !kb.buka[no]; renderKb(kb.data); return; }
+  if (t.closest("[data-kb-wa]")) { kbWaBuka(); return; }
   if (t.closest("[data-kb-lainbtn]")) { kb.lain = !kb.lain; renderKb(kb.data); return; }
   const ft = t.closest("[data-kb-foto]"); if (ft) { kb.target = { no: ft.dataset.kbFoto, jenis: ft.dataset.jenis || "helper" }; const inp = ft.dataset.src === "galeri" ? $("kbGaleri") : ft.dataset.src === "video" ? $("kbVideoIn") : $("kbKamera"); inp.value = ""; inp.click(); return; }
   const lh = t.closest("[data-kb-lihat]"); if (lh) { kbLihat(lh.dataset.kbLihat, lh.dataset.t, lh.dataset.v === "1"); return; }
@@ -1159,7 +1181,7 @@ function kbProg(no, p) { kb.prog[no] = p; const e = document.getElementById("kbp
 async function kbFileDipilih(files) {
   const tg = kb.target, r = kb.data; if (!tg || !r || !files.length) return;
   const x = r.ruang.find(y => y.no === tg.no), daftar = tg.jenis === "pic" ? x.pic.foto : x.foto, sisa = r.maksFoto - daftar.length;
-  const list = [...files].slice(0, Math.max(0, sisa)); if (files.length > sisa) toast(`Maksimal ${r.maksFoto} foto/video per ruangan.`);
+  const sebelumSelesai = kbWaSelesai(r), list = [...files].slice(0, Math.max(0, sisa)); if (files.length > sisa) toast(`Maksimal ${r.maksFoto} foto/video per ruangan.`);
   for (let i = 0; i < list.length; i++) {
     const file = list[i], video = /^video\//.test(file.type) || /\.(mp4|mov|webm|3gp|m4v)$/i.test(file.name || "");
     const ke = list.length > 1 ? ` ${i + 1}/${list.length}` : "";
@@ -1186,6 +1208,7 @@ async function kbFileDipilih(files) {
     } catch (e) { if (e.sesi) { delete kb.sibuk[x.no]; return sesiHabis(e.message); } toast(e.offline ? (video ? "Video" : "Foto") + " belum terkirim: tidak ada internet. Coba lagi saat ada sinyal." : e.message, 6000); break; }
   }
   delete kb.sibuk[x.no]; delete kb.prog[x.no]; kbHitung(r); renderKb(r); LS.set(kbKunci(), r);
+  if (!sebelumSelesai && kbWaSelesai(r) && !kbWaSudah(r)) kbWaBuka(); // ruangan terakhir selesai: ajak lapor ke grup WA
 }
 function kbHitung(r) { const a = r.ruang.filter(x => !x.lewati), n = s => r.ruang.filter(x => x.status === s).length;
   r.ringkas = { total: a.length, selesai: n("selesai"), telat: n("telat"), belum: n("belum"), lewati: n("lewati"), dinilai: a.filter(x => x.pic.nilai).length, kurang: a.filter(x => x.pic.nilai && x.pic.nilai !== "Bersih").length }; }
@@ -1209,6 +1232,80 @@ async function kbLewati(no, lewati) {
   if (lewati && !confirm("Tandai ruangan ini tidak ada di cabang Anda? Ruangan ini tidak akan dihitung lagi setiap hari (bisa ditampilkan lagi).")) return;
   try { await api("lewatiRuang", { cabang: r.cabang, ruang_no: no, lewati }); toast(lewati ? "Ruangan dilewati." : "Ruangan ditampilkan lagi."); muatKb(true); }
   catch (e) { if (e.sesi) return sesiHabis(e.message); toast(e.offline ? "Butuh internet." : e.message, 4500); }
+}
+
+// ----- lapor ke grup WhatsApp: pesan & foto disiapkan aplikasi, helper tinggal pilih grup lalu Kirim -----
+const kbwa = { kunci: "", files: null, siap: false, mode: "" };
+const kbMilik = r => (r.adaPj ? r.ruang.filter(x => x.saya) : r.ruang).filter(x => !x.lewati);
+const kbBeres = x => x.status === "selesai" || x.status === "telat";
+function kbWaSelesai(r) { if (!isHelper() || !r || r.rekap || r.tanggal !== hariIni() || !r.hak || !r.hak.isi) return false; const m = kbMilik(r); return m.length > 0 && m.every(kbBeres); }
+const kbWaSudah = r => !!(r && r.saya && r.saya.lapor);
+function kbWaKartu(r) {
+  if (kbWaSudah(r)) return `<div class="kb-wa sudah"><span>✓ Sudah lapor ke grup WA · ${esc(r.saya.lapor.replace(":", "."))}</span><button class="kb-wa-lagi" data-kb-wa>Kirim lagi</button></div>`;
+  return `<div class="kb-wa"><div><b>📲 Langkah terakhir: lapor ke grup WA</b><div class="small">Semua ruangan Anda sudah difoto. Kabari tim di grup WhatsApp cabang ${esc(r.cabang)}.</div></div><button class="btn wa" data-kb-wa>Kirim ke grup WhatsApp</button></div>`;
+}
+function kbWaPesan(r) {
+  const m = kbMilik(r), d = new Date(r.tanggal + "T00:00:00"), n = new Date(), jam = `${String(n.getHours()).padStart(2, "0")}.${String(n.getMinutes()).padStart(2, "0")}`;
+  const slot = [...new Set(m.map(x => x.pj && x.pj.slot ? x.pj.slot.replace(/^\s*\d+[.)]\s*/, "") : "").filter(Boolean))], telat = m.filter(x => x.status === "telat").length;
+  const nama = (r.saya && r.saya.nama) || namaSaya();
+  return [`✅ *Laporan Kebersihan – ${r.cabang}*`, `${HARI[d.getDay()]}, ${tglKb(r.tanggal)} · jam ${jam}`, `Helper: ${nama}${slot.length ? ` (${slot.join(", ")})` : ""}`,
+    `*${m.filter(kbBeres).length}/${m.length} ruangan sudah difoto*${telat ? ` (${telat} terlambat)` : ""}`,
+    ...(m.length <= 12 ? [""].concat(m.map(x => `• ${x.ruangan}${x.status === "telat" ? " ⚠ telat" : " ✓"}`)) : []),
+    "", "Foto lengkap ada di aplikasi Helper LNV."].join("\n");
+}
+function kbWaPilihFoto(r) { const l = kbMilik(r).map(x => x.foto.filter(f => !f.v).slice(-1)[0]).filter(Boolean); return l.length <= 3 ? l : [l[0], l[Math.floor(l.length / 2)], l[l.length - 1]]; }
+function kbDataKeFile(u, nama) { const i = u.indexOf(","), mime = (/^data:([^;,]+)/.exec(u) || [])[1] || "image/jpeg", bin = atob(u.slice(i + 1)), a = new Uint8Array(bin.length); for (let k = 0; k < bin.length; k++) a[k] = bin.charCodeAt(k); return new File([a], nama, { type: mime }); }
+function kbWaSiapkan(r) {
+  const pilih = kbWaPilihFoto(r), k = r.tanggal + "|" + r.cabang + "|" + pilih.map(f => f.f).join(",");
+  if (kbwa.kunci === k) return; kbwa.kunci = k; kbwa.siap = false; kbwa.files = null;
+  const bisaFile = !!(navigator.canShare && window.File) && (() => { try { return navigator.canShare({ files: [new File(["x"], "x.jpg", { type: "image/jpeg" })] }); } catch (e) { return false; } })();
+  if (!bisaFile || !pilih.length) { kbwa.files = []; kbwa.siap = true; kbWaTombol(); return; }
+  const selesai = files => { if (kbwa.kunci !== k || kbwa.siap) return; kbwa.files = files; kbwa.siap = true; kbWaTombol(); };
+  setTimeout(() => selesai(pilih.map(f => kb.th[f.t]).filter(Boolean).map((u, i) => kbDataKeFile(u, `kebersihan-${i + 1}.jpg`))), 12000); // sinyal lambat: pakai foto kecil
+  (async () => { const files = [], nm = r.cabang.replace(/[^\w]+/g, "-");
+    for (let i = 0; i < pilih.length; i += 2) {
+      try { const o = await api("fotoLihat", { tanggal: r.tanggal, cabang: r.cabang, ids: pilih.slice(i, i + 2).map(f => f.f), besar: true }, 60000);
+        pilih.slice(i, i + 2).forEach(f => { const u = o[f.f] || kb.th[f.t]; if (u) files.push(kbDataKeFile(u, `kebersihan-${nm}-${files.length + 1}.jpg`)); }); }
+      catch (e) { pilih.slice(i, i + 2).forEach(f => { if (kb.th[f.t]) files.push(kbDataKeFile(kb.th[f.t], `kebersihan-${nm}-${files.length + 1}.jpg`)); }); }
+    }
+    selesai(files.length && navigator.canShare({ files }) ? files : []); })();
+}
+function kbWaTombol() { const b = $("kbWaKirim"); if (!b) return; b.disabled = !kbwa.siap; b.textContent = kbwa.siap ? "📲 Kirim ke grup WhatsApp" : "⏳ Menyiapkan foto…";
+  const f = $("kbWaFt"); if (f && kbwa.siap) f.textContent = (kbwa.files || []).length ? `${kbwa.files.length} foto ikut terlampir.` : "Pesan dikirim tanpa foto (foto tetap bisa dilihat di aplikasi)."; }
+function kbWaTampil(mode) {
+  const r = kb.data; kbwa.mode = mode; $("kbWa").hidden = false;
+  if (mode === "konfirmasi") {
+    $("kbWaIc").textContent = "💬"; $("kbWaJudul").textContent = "Sudah terkirim ke grup?";
+    $("kbWaTeks").textContent = `Pastikan pesannya sudah masuk ke grup WhatsApp cabang ${r.cabang}.`; $("kbWaPrev").innerHTML = "";
+    $("kbWaAksi").innerHTML = `<button class="btn wa" id="kbWaYa">✓ Sudah terkirim</button><button class="btn ghost" id="kbWaUlang">Belum, kirim lagi</button>`;
+    $("kbWaYa").onclick = kbWaCatat; $("kbWaUlang").onclick = () => kbWaTampil("ajak"); return;
+  }
+  const m = kbMilik(r), ft = kbWaPilihFoto(r);
+  $("kbWaIc").textContent = kbWaSudah(r) ? "📲" : "🎉"; $("kbWaJudul").textContent = kbWaSudah(r) ? "Kirim ulang laporan ke grup WA" : `${m.length}/${m.length} ruangan selesai!`;
+  $("kbWaTeks").innerHTML = kbWaSudah(r) ? "" : "Langkah terakhir: <b>lapor ke grup WhatsApp</b> cabang supaya tim & kacab tahu.<br>Ketuk tombol hijau, pilih <b>WhatsApp</b>, pilih grup cabang, lalu <b>Kirim</b>.";
+  $("kbWaPrev").innerHTML = `<div class="kbwa-prev">${ft.length ? `<div class="ft">${ft.map(f => `<img alt="" ${kb.th[f.t] ? `src="${kb.th[f.t]}"` : ""}>`).join("")}</div>` : ""}${esc(kbWaPesan(r)).replace(/\*([^*\n]+)\*/g, "<b>$1</b>")}</div><p class="small muted" id="kbWaFt" style="margin:6px 0 0"></p>`;
+  $("kbWaAksi").innerHTML = `<button class="btn wa" id="kbWaKirim"></button><button class="btn ghost" id="kbWaNanti">Nanti saja</button>`;
+  $("kbWaKirim").onclick = kbWaKirim; $("kbWaNanti").onclick = kbWaTutup;
+  kbWaSiapkan(r); kbWaTombol();
+}
+function kbWaBuka() { if (!kb.data || !kbWaSelesai(kb.data)) return; kbWaTampil("ajak"); }
+function kbWaTutup() { $("kbWa").hidden = true; kbwa.mode = ""; }
+$("kbWa").addEventListener("click", e => { if (e.target.id === "kbWa") kbWaTutup(); });
+async function kbWaKirim() {
+  const r = kb.data, teks = kbWaPesan(r), files = kbwa.files || [];
+  try { navigator.clipboard && navigator.clipboard.writeText(teks).catch(() => {}); } catch (e) {} // cadangan: teks bisa ditempel bila tidak ikut
+  const waMe = () => { const w = window.open("https://wa.me/?text=" + encodeURIComponent(teks), "_blank"); if (!w) location.href = "https://wa.me/?text=" + encodeURIComponent(teks); };
+  try {
+    if (files.length && navigator.canShare && navigator.canShare({ files, text: teks })) await navigator.share({ files, text: teks });
+    else waMe();
+  } catch (e) { if (e.name === "AbortError") return; waMe(); }
+  kbWaTampil("konfirmasi");
+}
+async function kbWaCatat() {
+  const r = kb.data, m = kbMilik(r), b = $("kbWaYa"); b.disabled = true; b.textContent = "Menyimpan…";
+  try { const o = await api("laporWa", { tanggal: r.tanggal, cabang: r.cabang, jumlah: m.filter(kbBeres).length, total: m.length });
+    r.saya = Object.assign(r.saya || {}, { lapor: o.waktu }); LS.set(kbKunci(), r); kbWaTutup(); renderKb(r); toast(`Tercatat: sudah lapor ke grup WA (${o.waktu.replace(":", ".")}) ✅`); }
+  catch (e) { b.disabled = false; b.textContent = "✓ Sudah terkirim"; if (e.sesi) { kbWaTutup(); return sesiHabis(e.message); } toast(e.offline ? "Belum tercatat: tidak ada internet. Coba lagi saat ada sinyal." : e.message, 4500); }
 }
 // ----- lihat foto besar -----
 async function kbLihat(f, t, video) {
